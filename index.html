@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>◯◯高校 文化祭 2026</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --accent-color: #ff6b6b;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav a {
+            padding: 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        section {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* お知らせスタイル */
+        .news-list {
+            list-style: none;
+        }
+
+        .news-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .news-date {
+            font-size: 0.85rem;
+            color: #666;
+            margin-right: 0.5rem;
+        }
+
+        /* 検索バー */
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        /* 出し物カード */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .card {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 1rem;
+            background: #fff;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .card .location {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* タイムスケジュール */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f3f5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #666;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎉 第50回 ◯◯高校 文化祭</h1>
+        <p>テーマ：未来へつなぐ一歩</p>
+    </header>
+
+    <nav>
+        <a href="#news">お知らせ</a>
+        <a href="#events">出し物</a>
+        <a href="#schedule">ステージ</a>
+        <a href="#map">マップ</a>
+    </nav>
+
+    <main>
+        <!-- お知らせセクション -->
+        <section id="news">
+            <h2>📢 最新ニュース</h2>
+            <ul class="news-list">
+                <li><span class="news-date">10/14</span>体育館ステージのタイムテーブルを更新しました。</li>
+                <li><span class="news-date">10/10</span>文化祭公式Webサイトを開設しました！</li>
+            </ul>
+        </section>
+
+        <!-- 出し物一覧（検索機能付き） -->
+        <section id="events">
+            <h2>🎪 出し物一覧</h2>
+            <input type="text" id="searchInput" class="search-box" placeholder="クラス名や出し物の名前で検索...">
+            
+            <div class="grid" id="eventGrid">
+                <div class="card" data-title="1年A組 お化け屋敷">
+                    <span class="location">1年A組教室</span>
+                    <h3>お化け屋敷</h3>
+                    <p>戦慄の体験をあなたに...。待ち時間短縮券も配布中！</p>
+                </div>
+                <div class="card" data-title="2年B組 チュロス販売">
+                    <span class="location">渡り廊下</span>
+                    <h3>揚げたてチュロス</h3>
+                    <p>チョコとシナモンフレーバーをご用意しています。</p>
+                </div>
+                <div class="card" data-title="吹奏楽部 演奏会">
+                    <span class="location">体育館</span>
+                    <h3>吹奏楽部 定期公演</h3>
+                    <p>ポップスからクラシックまで幅広く演奏します。</p>
+                </div>
+                <div class="card" data-title="パソコン部 自作ゲーム体験">
+                    <span class="location">PC教室</span>
+                    <h3>自作ゲーム体験コーナー</h3>
+                    <p>部員が作ったオリジナルゲームで遊べます！</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- タイムスケジュール -->
+        <section id="schedule">
+            <h2>⏰ ステージスケジュール</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>時間</th>
+                        <th>プログラム</th>
+                        <th>場所</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10:00 - 10:30</td>
+                        <td>オープニングセール</td>
+                        <td>体育館</td>
+                    </tr>
+                    <tr>
+                        <td>11:00 - 12:00</td>
+                        <td>ダンス部 パフォーマンス</td>
+                        <td>体育館</td>
+                    </tr>
+                    <tr>
+                        <td>13:00 - 14:00</td>
+                        <td>軽音楽部 ライブ</td>
+                        <td>中庭</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 校内マップ -->
+        <section id="map">
+            <h2>🗺️ 校内マップ</h2>
+            <p>※マップ画像を差し替えてご利用ください。</p>
+            <div style="background: #e9ecef; height: 200px; display: flex; align-items: center; justify-content: center; border-radius: 6px; margin-top: 1rem;">
+                校内マップ画像エリア
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ◯◯高校 文化祭実行委員会</p>
+    </footer>
+
+    <script>
+        // リアルタイム検索機能
+        const searchInput = document.getElementById('searchInput');
+        const cards = document.querySelectorAll('.card');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title').toLowerCase();
+                const text = card.textContent.toLowerCase();
+                if (title.includes(query) || text.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
