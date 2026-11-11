@@ -133,7 +133,7 @@
     }
 
     .list-container {
-      max-height: 280px;
+      max-height: 350px;
       overflow-y: auto;
     }
 
@@ -184,8 +184,8 @@
       background-color: #ffffff;
       border: 1px solid #e1e8ed;
       border-radius: 4px;
-      padding: 10px;
-      margin-bottom: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -194,7 +194,16 @@
     .chat-meta {
       font-size: 0.75rem;
       color: #777777;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
+    }
+
+    .chat-image {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 4px;
+      margin-top: 8px;
+      border: 1px solid #dddddd;
+      display: block;
     }
 
     .btn-group {
@@ -223,7 +232,7 @@
     <div id="clock" class="digital-clock">00:00:00</div>
     <div class="header-content">
       <h1>クラス文化祭準備 ポータルサイト</h1>
-      <p>クラス用 連絡・シフト出欠・タスク管理ポータル</p>
+      <p>クラス用 連絡・シフト出欠・進捗写真共有ポータル</p>
     </div>
   </header>
 
@@ -244,14 +253,20 @@
       <div class="list-container" id="noticeList"></div>
     </div>
 
-    <!-- クラスチャット -->
-    <div class="card full-width">
-      <h2>クラスチャット</h2>
+    <!-- クラスチャット & 進捗写真投稿 -->
+    <div class="card full-width" id="chatSection">
+      <h2>クラスチャット & 進捗写真共有</h2>
       <form id="chatForm" style="margin-bottom: 15px;">
-        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-          <input type="text" id="chatName" placeholder="名前" required style="width: 150px;">
-          <input type="text" id="chatMessage" placeholder="メッセージを入力 (例: 絵の具の予備はどこにありますか？)" required style="flex: 1;">
-          <button type="submit" style="width: auto; padding: 0 20px;">送信</button>
+        <div style="display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+          <input type="text" id="chatName" placeholder="名前" required style="width: 140px;">
+          <input type="text" id="chatMessage" placeholder="メッセージ (例: 今日の外装の仕上がりです！)" required style="flex: 1; min-width: 200px;">
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <div style="flex: 1;">
+            <label for="chatImageInput" style="display: block; margin-bottom: 2px;">画像添付 (任意):</label>
+            <input type="file" id="chatImageInput" accept="image/*" style="padding: 5px;">
+          </div>
+          <button type="submit" style="width: auto; padding: 0 25px; height: 42px; margin-top: 18px;">送信する</button>
         </div>
       </form>
       <div class="list-container" id="chatList"></div>
@@ -309,7 +324,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      // 本日の日付取得
+      // 日付と時刻の補助関数
       function getTodayString() {
         var now = new Date();
         var year = now.getFullYear();
@@ -319,7 +334,6 @@
       }
       var today = getTodayString();
 
-      // 現在時刻取得 (時:分)
       function getTimeString() {
         var now = new Date();
         var hours = String(now.getHours()).padStart(2, "0");
@@ -402,9 +416,9 @@
         });
       }
 
-      // 2. チャット機能データ管理
+      // 2. チャット & 画像共有データ管理
       var chatData = [
-        { id: 1, name: "広報担当", message: "掲示用のポスターが完成しました！教室前方に貼っておきます。", time: "15:20" }
+        { id: 1, name: "広報担当", message: "本日の外装作業の様子です！", image: "", time: "15:20" }
       ];
 
       function renderChat() {
@@ -419,10 +433,12 @@
         var html = "";
         for (var i = 0; i < chatData.length; i++) {
           var item = chatData[i];
+          var imgHtml = item.image ? '<img src="' + item.image + '" class="chat-image" alt="進捗写真">' : '';
           html += '<div class="chat-item">' +
                     '<div>' +
                       '<div class="chat-meta"><strong>' + item.name + '</strong> (' + item.time + ')</div>' +
                       '<div>' + item.message + '</div>' +
+                      imgHtml +
                     '</div>' +
                     '<button class="action-btn delete-btn delete-chat-btn" type="button" data-id="' + item.id + '">削除</button>' +
                   '</div>';
@@ -447,16 +463,36 @@
           e.preventDefault();
           var nameInput = document.getElementById("chatName");
           var messageInput = document.getElementById("chatMessage");
+          var imageInput = document.getElementById("chatImageInput");
 
-          chatData.unshift({
-            id: Date.now(),
-            name: nameInput.value,
-            message: messageInput.value,
-            time: getTimeString()
-          });
-
-          renderChat();
-          messageInput.value = "";
+          var file = imageInput.files[0];
+          
+          if (file) {
+            var reader = new FileReader();
+            reader.onload = function(event) {
+              chatData.unshift({
+                id: Date.now(),
+                name: nameInput.value,
+                message: messageInput.value,
+                image: event.target.result,
+                time: getTimeString()
+              });
+              renderChat();
+              messageInput.value = "";
+              imageInput.value = "";
+            };
+            reader.readAsDataURL(file);
+          } else {
+            chatData.unshift({
+              id: Date.now(),
+              name: nameInput.value,
+              message: messageInput.value,
+              image: "",
+              time: getTimeString()
+            });
+            renderChat();
+            messageInput.value = "";
+          }
         });
       }
 
