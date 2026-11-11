@@ -488,6 +488,22 @@
       var SUPABASE_KEY = "ap-southeast-1 / public key";
       var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+            // ==== チャットのリアルタイム同期 ====
+      async function fetchAndSubscribeChat() {
+        var res = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
+        if (res.data) chatData = res.data;
+        renderChat();
+
+        supabaseClient.channel('public:chats')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, async function() {
+            var updated = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
+            if (updated.data) chatData = updated.data;
+            renderChat();
+          })
+          .subscribe();
+      }
+      fetchAndSubscribeChat();
+
     
     document.addEventListener("DOMContentLoaded", function() {
       // 日付と時刻の補助関数
@@ -619,9 +635,9 @@
         });
       }
 
-      var chatForm = document.getElementById("chatForm");
+         var chatForm = document.getElementById("chatForm");
       if (chatForm) {
-        chatForm.addEventListener("submit", function(e) {
+        chatForm.addEventListener("submit", async function(e) {
           e.preventDefault();
           var nameInput = document.getElementById("chatName");
           var messageInput = document.getElementById("chatMessage");
@@ -630,36 +646,34 @@
           var file = imageInput.files[0];
           if (file) {
             var reader = new FileReader();
-                var file = imageInput.files[0];
-    if (file) {
-      var reader = new FileReader();
-      reader.onload = async function(event) {
-        // 画像があるときのSupabase送信
-        await supabaseClient.from('chats').insert([{
-          id: Date.now(),
-          name: nameInput.value,
-          message: messageInput.value,
-          image: event.target.result,
-          time: getTimeString()
-        }]);
-        
-        messageInput.value = "";
-        imageInput.value = "";
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // 画像がないときのSupabase送信
-      await supabaseClient.from('chats').insert([{
-        id: Date.now(),
-        name: nameInput.value,
-        message: messageInput.value,
-        image: "",
-        time: getTimeString()
-      }]);
-      
-      messageInput.value = "";
-    }
- {
+            reader.onload = async function(event) {
+              // 画像があるときのSupabase送信
+              await supabaseClient.from('chats').insert([{
+                id: Date.now(),
+                name: nameInput.value,
+                message: messageInput.value,
+                image: event.target.result,
+                time: getTimeString()
+              }]);
+              
+              messageInput.value = "";
+              imageInput.value = "";
+            };
+            reader.readAsDataURL(file);
+          } else {
+            // 画像がないときのSupabase送信
+            await supabaseClient.from('chats').insert([{
+              id: Date.now(),
+              name: nameInput.value,
+              message: messageInput.value,
+              image: "",
+              time: getTimeString()
+            }]);
+            
+            messageInput.value = "";
+          }
+        });
+      }
             chatData.unshift({
               id: Date.now(),
               name: nameInput.value,
