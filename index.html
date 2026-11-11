@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文化祭準備 ポータルサイト</title>
+  <title>クラス文化祭準備 ポータルサイト</title>
   <style>
     :root {
-      --primary-color: #4a90e2;
-      --secondary-color: #50e3c2;
-      --bg-color: #f4f7f6;
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --bg-color: #f4f6f7;
       --card-bg: #ffffff;
       --text-color: #333333;
-      --border-radius: 8px;
+      --border-radius: 6px;
     }
 
     * {
@@ -29,22 +29,45 @@
     }
 
     header {
-      background: linear-gradient(135deg, var(--primary-color), #357abd);
-      color: white;
+      background-color: var(--primary-color);
+      color: #ffffff;
+      padding: 1.5rem 1rem;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-content {
+      max-width: 1000px;
+      margin: 0 auto;
       text-align: center;
-      padding: 2rem 1rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .digital-clock {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: rgba(0, 0, 0, 0.25);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      color: #00ffcc;
     }
 
     header h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: #ecf0f1;
     }
 
     .container {
       max-width: 1000px;
-      margin: 0 auto;
+      margin: 20px auto 0;
       padding: 0 15px;
       display: grid;
       grid-template-columns: 1fr;
@@ -64,11 +87,12 @@
       background: var(--card-bg);
       border-radius: var(--border-radius);
       padding: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border: 1px solid #e1e8ed;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .card h2 {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       color: var(--primary-color);
       margin-bottom: 15px;
       border-bottom: 2px solid var(--bg-color);
@@ -83,20 +107,21 @@
 
     label {
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      color: #555555;
     }
 
     input, select, textarea, button {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
+      padding: 9px;
+      border: 1px solid #cccccc;
       border-radius: 4px;
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
 
     button {
       background-color: var(--primary-color);
-      color: white;
+      color: #ffffff;
       border: none;
       font-weight: bold;
       cursor: pointer;
@@ -104,17 +129,17 @@
     }
 
     button:hover {
-      background-color: #357abd;
+      background-color: var(--secondary-color);
     }
 
     .list-container {
-      max-height: 300px;
+      max-height: 280px;
       overflow-y: auto;
     }
 
     .item {
       padding: 10px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #eeeeee;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -125,92 +150,100 @@
     }
 
     .badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: #ffffff;
       font-weight: bold;
     }
 
-    .badge-出席 { background-color: #2ecc71; }
+    .badge-出席 { background-color: #27ae60; }
     .badge-遅刻 { background-color: #f39c12; }
-    .badge-欠席 { background-color: #e74c3c; }
+    .badge-欠席 { background-color: #c0392b; }
 
-    .badge-todo { background-color: #95a5a6; }
-    .badge-doing { background-color: #3498db; }
-    .badge-done { background-color: #2ecc71; }
+    .badge-todo { background-color: #7f8c8d; }
+    .badge-doing { background-color: #2980b9; }
+    .badge-done { background-color: #27ae60; }
 
     .notice-item {
       background-color: #f8f9fa;
-      border-left: 4px solid var(--primary-color);
-      padding: 10px 15px;
+      border-left: 3px solid var(--primary-color);
+      padding: 10px 12px;
       margin-bottom: 10px;
-      border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .notice-date {
-      font-size: 0.8rem;
-      color: #777;
+      font-size: 0.75rem;
+      color: #777777;
     }
 
-    .status-btn {
+    .btn-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .action-btn {
       padding: 4px 8px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       width: auto;
-      margin-left: 5px;
+    }
+
+    .delete-btn {
+      background-color: #c0392b;
+    }
+    .delete-btn:hover {
+      background-color: #962d22;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>文化祭準備 ポータルサイト</h1>
-    <p>スムーズな準備で最高の文化祭にしよう！</p>
+    <div id="clock" class="digital-clock">00:00:00</div>
+    <div class="header-content">
+      <h1>クラス文化祭準備 ポータルサイト</h1>
+      <p>クラス用 連絡・シフト出欠・タスク管理ポータル</p>
+    </div>
   </header>
 
   <div class="container">
 
-    <!-- お知らせボード -->
+    <!-- クラス内連絡 -->
     <div class="card full-width">
-      <h2>📢 全体連絡・お知らせ</h2>
+      <h2>クラス内連絡事項</h2>
       <div id="noticeList">
         <div class="notice-item">
           <div class="notice-date">2026/11/10</div>
-          <strong>資材の保管場所について</strong>
-          <p>ダンボールと絵の具は第2美術室にまとめて置いてください。</p>
+          <strong>役割分担と作業場所について</strong>
+          <p>内装作業は教室前方、小道具制作は廊下側で行います。作業後の清掃を徹底してください。</p>
         </div>
         <div class="notice-item">
           <div class="notice-date">2026/11/08</div>
-          <strong>シフト入力のお願い</strong>
-          <p>準備期間中の出欠確認を行います。各自シフトを入力してください。</p>
+          <strong>出欠入力について</strong>
+          <p>放課後の準備シフトへの参加可否を以下のフォームより回答してください。</p>
         </div>
       </div>
     </div>
 
-    <!-- シフト出欠入力フォーム -->
+    <!-- シフト出欠登録 -->
     <div class="card">
-      <h2>📝 シフト出欠登録</h2>
+      <h2>シフト出欠登録 (本日のシフト)</h2>
       <form id="attendanceForm">
         <div>
           <label for="studentName">氏名</label>
-          <input type="text" id="studentName" placeholder="山田 太郎" required>
+          <input type="text" id="studentName" placeholder="例: 山田 太郎" required>
         </div>
         <div>
-          <label for="studentClass">学年・クラス</label>
-          <input type="text" id="studentClass" placeholder="2年B組" required>
-        </div>
-        <div>
-          <label for="shiftDate">対象日時</label>
-          <select id="shiftDate" required>
+          <label for="shiftTime">対象時間帯</label>
+          <select id="shiftTime" required>
             <option value="">選択してください</option>
-            <option value="11/12 前半 (15:00-16:30)">11/12 前半 (15:00-16:30)</option>
-            <option value="11/12 後半 (16:30-18:00)">11/12 後半 (16:30-18:00)</option>
-            <option value="11/13 前半 (15:00-16:30)">11/13 前半 (15:00-16:30)</option>
-            <option value="11/13 後半 (16:30-18:00)">11/13 後半 (16:30-18:00)</option>
+            <option value="前半 (15:00-16:30)">前半 (15:00-16:30)</option>
+            <option value="後半 (16:30-18:00)">後半 (16:30-18:00)</option>
           </select>
         </div>
         <div>
-          <label for="attendanceStatus">出欠状態</label>
+          <label for="attendanceStatus">出欠状況</label>
           <select id="attendanceStatus" required>
             <option value="出席">出席</option>
             <option value="遅刻">遅刻</option>
@@ -218,130 +251,215 @@
           </select>
         </div>
         <div>
-          <label for="attendanceNote">備考（理由など）</label>
-          <input type="text" id="attendanceNote" placeholder="部活のため30分遅刻">
+          <label for="attendanceNote">備考</label>
+          <input type="text" id="attendanceNote" placeholder="例: 部活のため30分遅刻">
         </div>
-        <button type="submit">送信する</button>
+        <button type="submit">送信</button>
       </form>
     </div>
 
-    <!-- シフト出欠一覧 -->
+    <!-- 出欠確認一覧 -->
     <div class="card">
-      <h2>👥 出欠状況一覧</h2>
-      <div class="list-container" id="attendanceList">
-        <!-- JSで動的に追加されます -->
-      </div>
+      <h2>本日の出欠確認一覧</h2>
+      <div class="list-container" id="attendanceList"></div>
     </div>
 
-    <!-- タスク・進捗管理 -->
+    <!-- クラス準備タスク管理 -->
     <div class="card full-width">
-      <h2>✅ 準備タスク・進捗</h2>
+      <h2>クラス準備タスク</h2>
       <form id="taskForm" style="flex-direction: row; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="taskInput" placeholder="新しいタスクを入力 (例: 外装の看板塗り)" required style="flex: 1;">
+        <input type="text" id="taskInput" placeholder="新しいタスクを入力 (例: 背景用の黒画用紙の購入)" required style="flex: 1;">
         <button type="submit" style="width: auto; padding: 0 20px;">追加</button>
       </form>
-      <div class="list-container" id="taskList">
-        <!-- JSで動的に追加されます -->
-      </div>
+      <div class="list-container" id="taskList"></div>
     </div>
 
   </div>
 
   <script>
-    // 初期データのセットアップ
-    let attendanceData = [
-      { name: '佐藤 花子', class: '2年B組', shift: '11/12 前半 (15:00-16:30)', status: '出席', note: '' },
-      { name: '鈴木 健太', class: '2年B組', shift: '11/12 前半 (15:00-16:30)', status: '遅刻', note: '15:30到着予定' }
-    ];
-
-    let taskData = [
-      { id: 1, title: '装飾用の風船膨らまし', status: 'todo' },
-      { id: 2, title: '入口看板の制作', status: 'doing' },
-      { id: 3, title: '机・椅子の配置換え', status: 'done' }
-    ];
-
-    // 出欠一覧の描画
-    function renderAttendance() {
-      const list = document.getElementById('attendanceList');
-      if (attendanceData.length === 0) {
-        list.innerHTML = '<p style="color: #888; text-align: center;">出欠データはありません</p>';
-        return;
+    document.addEventListener("DOMContentLoaded", function() {
+      // 本日の日付を取得 (YYYY-MM-DD形式)
+      function getTodayString() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = String(now.getMonth() + 1).padStart(2, "0");
+        var day = String(now.getDate()).padStart(2, "0");
+        return year + "-" + month + "-" + day;
       }
-      list.innerHTML = attendanceData.map(item => `
-        <div class="item">
-          <div>
-            <strong>${item.name}</strong> (${item.class})<br>
-            <small style="color: #666;">${item.shift}</small>
-            ${item.note ? `<br><small style="color: #888;">メモ: ${item.note}</small>` : ''}
-          </div>
-          <span class="badge badge-${item.status}">${item.status}</span>
-        </div>
-      `).join('');
-    }
+      var today = getTodayString();
 
-    // 出欠フォーム送信処理
-    document.getElementById('attendanceForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const newEntry = {
-        name: document.getElementById('studentName').value,
-        class: document.getElementById('studentClass').value,
-        shift: document.getElementById('shiftDate').value,
-        status: document.getElementById('attendanceStatus').value,
-        note: document.getElementById('attendanceNote').value
-      };
-      attendanceData.unshift(newEntry);
-      renderAttendance();
-      
-      // フォームリセット
-      document.getElementById('studentName').value = '';
-      document.getElementById('attendanceNote').value = '';
-      alert('出欠を登録しました！');
-    });
+      // デジタル時計
+      function updateClock() {
+        var clockElement = document.getElementById("clock");
+        if (clockElement) {
+          var now = new Date();
+          var hours = String(now.getHours()).padStart(2, "0");
+          var minutes = String(now.getMinutes()).padStart(2, "0");
+          var seconds = String(now.getSeconds()).padStart(2, "0");
+          clockElement.textContent = hours + ":" + minutes + ":" + seconds;
+        }
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
 
-    // タスク一覧の描画
-    function renderTasks() {
-      const list = document.getElementById('taskList');
-      const statusLabels = { todo: '未着手', doing: '進行中', done: '完了' };
-      
-      list.innerHTML = taskData.map(task => `
-        <div class="item">
-          <div>
-            <strong>${task.title}</strong>
-          </div>
-          <div>
-            <span class="badge badge-${task.status}">${statusLabels[task.status]}</span>
-            ${task.status !== 'done' ? `<button class="status-btn" onclick="updateTaskStatus(${task.id})">次へ進める</button>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
+      // 出欠データ管理 (昨日以前のデータは自動的に除外される仕組み)
+      var attendanceData = [
+        { id: 1, name: "佐藤 花子", shift: "前半 (15:00-16:30)", date: today, status: "出席", note: "" },
+        { id: 2, name: "鈴木 健太", shift: "前半 (15:00-16:30)", date: today, status: "遅刻", note: "15:30到着予定" }
+      ];
 
-    // タスク追加処理
-    document.getElementById('taskForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const input = document.getElementById('taskInput');
-      taskData.push({
-        id: Date.now(),
-        title: input.value,
-        status: 'todo'
+      // 起動時に今日以外の古いデータを自動削除
+      attendanceData = attendanceData.filter(function(item) {
+        return item.date === today;
       });
-      input.value = '';
+
+      function renderAttendance() {
+        var list = document.getElementById("attendanceList");
+        if (!list) return;
+
+        if (attendanceData.length === 0) {
+          list.innerHTML = '<p style="color: #888888; text-align: center;">本日の出欠登録はありません</p>';
+          return;
+        }
+
+        var html = "";
+        for (var i = 0; i < attendanceData.length; i++) {
+          var item = attendanceData[i];
+          var noteHtml = item.note ? '<br><small style="color: #888888;">備考: ' + item.note + '</small>' : '';
+          html += '<div class="item">' +
+                    '<div>' +
+                      '<strong>' + item.name + '</strong><br>' +
+                      '<small style="color: #666666;">' + item.shift + '</small>' +
+                      noteHtml +
+                    '</div>' +
+                    '<div class="btn-group">' +
+                      '<span class="badge badge-' + item.status + '">' + item.status + '</span>' +
+                      '<button class="action-btn delete-btn delete-att-btn" type="button" data-id="' + item.id + '">削除</button>' +
+                    '</div>' +
+                  '</div>';
+        }
+        list.innerHTML = html;
+
+        // 出欠削除ボタンのイベント登録
+        var delButtons = list.querySelectorAll(".delete-att-btn");
+        delButtons.forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var id = Number(this.getAttribute("data-id"));
+            attendanceData = attendanceData.filter(function(item) {
+              return item.id !== id;
+            });
+            renderAttendance();
+          });
+        });
+      }
+
+      var attendanceForm = document.getElementById("attendanceForm");
+      if (attendanceForm) {
+        attendanceForm.addEventListener("submit", function(e) {
+          e.preventDefault();
+          var nameInput = document.getElementById("studentName");
+          var shiftInput = document.getElementById("shiftTime");
+          var statusInput = document.getElementById("attendanceStatus");
+          var noteInput = document.getElementById("attendanceNote");
+
+          attendanceData.unshift({
+            id: Date.now(),
+            name: nameInput.value,
+            shift: shiftInput.value,
+            date: today,
+            status: statusInput.value,
+            note: noteInput.value
+          });
+
+          renderAttendance();
+          nameInput.value = "";
+          noteInput.value = "";
+        });
+      }
+
+      // タスク管理
+      var taskData = [
+        { id: 1, title: "看板デザイン作成", status: "done" },
+        { id: 2, title: "外装用ダンボールの確保", status: "doing" },
+        { id: 3, title: "シフト表の最終確認", status: "todo" }
+      ];
+
+      function renderTasks() {
+        var list = document.getElementById("taskList");
+        if (!list) return;
+
+        if (taskData.length === 0) {
+          list.innerHTML = '<p style="color: #888888; text-align: center;">タスクはありません</p>';
+          return;
+        }
+
+        var statusLabels = { todo: "未着手", doing: "進行中", done: "完了" };
+        var html = "";
+
+        for (var i = 0; i < taskData.length; i++) {
+          var task = taskData[i];
+          var progressBtn = task.status !== "done" ? '<button class="action-btn advance-btn" type="button" data-id="' + task.id + '">進める</button>' : '';
+
+          html += '<div class="item">' +
+                    '<div><strong>' + task.title + '</strong></div>' +
+                    '<div class="btn-group">' +
+                      '<span class="badge badge-' + task.status + '">' + statusLabels[task.status] + '</span>' +
+                      progressBtn +
+                      '<button class="action-btn delete-btn delete-task-btn" type="button" data-id="' + task.id + '">削除</button>' +
+                    '</div>' +
+                  '</div>';
+        }
+        list.innerHTML = html;
+
+        // タスクを進めるボタン
+        var advButtons = list.querySelectorAll(".advance-btn");
+        advButtons.forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var id = Number(this.getAttribute("data-id"));
+            for (var j = 0; j < taskData.length; j++) {
+              if (taskData[j].id === id) {
+                if (taskData[j].status === "todo") taskData[j].status = "doing";
+                else if (taskData[j].status === "doing") taskData[j].status = "done";
+                break;
+              }
+            }
+            renderTasks();
+          });
+        });
+
+        // タスク削除ボタン
+        var delTaskButtons = list.querySelectorAll(".delete-task-btn");
+        delTaskButtons.forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var id = Number(this.getAttribute("data-id"));
+            taskData = taskData.filter(function(item) {
+              return item.id !== id;
+            });
+            renderTasks();
+          });
+        });
+      }
+
+      var taskForm = document.getElementById("taskForm");
+      if (taskForm) {
+        taskForm.addEventListener("submit", function(e) {
+          e.preventDefault();
+          var input = document.getElementById("taskInput");
+          if (input && input.value.trim() !== "") {
+            taskData.push({
+              id: Date.now(),
+              title: input.value,
+              status: "todo"
+            });
+            input.value = "";
+            renderTasks();
+          }
+        });
+      }
+
+      renderAttendance();
       renderTasks();
     });
-
-    // タスクステータス更新
-    function updateTaskStatus(id) {
-      const task = taskData.find(t => t.id === id);
-      if (task) {
-        if (task.status === 'todo') task.status = 'doing';
-        else if (task.status === 'doing') task.status = 'done';
-        renderTasks();
-      }
-    }
-
-    // 初期化実行
-    renderAttendance();
-    renderTasks();
   </script>
 </body>
 </html>
