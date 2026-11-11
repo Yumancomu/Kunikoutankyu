@@ -30,7 +30,7 @@
 
     header {
       background-color: var(--primary-color);
-      color: white;
+      color: #ffffff;
       padding: 1.5rem 1rem;
       position: relative;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -108,20 +108,20 @@
     label {
       font-weight: bold;
       font-size: 0.85rem;
-      color: #555;
+      color: #555555;
     }
 
     input, select, textarea, button {
       width: 100%;
       padding: 9px;
-      border: 1px solid #ccc;
+      border: 1px solid #cccccc;
       border-radius: 4px;
       font-size: 0.95rem;
     }
 
     button {
       background-color: var(--primary-color);
-      color: white;
+      color: #ffffff;
       border: none;
       font-weight: bold;
       cursor: pointer;
@@ -139,7 +139,7 @@
 
     .item {
       padding: 10px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #eeeeee;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -150,4 +150,21 @@
     }
 
     .badge {
-      
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .badge-出席 { background-color: #27ae60; }
+    .badge-遅刻 { background-color: #f39c12; }
+    .badge-欠席 { background-color: #c0392b; }
+
+    .badge-todo { background-color: #7f8c8d; }
+    .badge-doing { background-color: #2980b9; }
+    .badge-done { background-color: #27ae60; }
+
+    .notice-item {
+      background-color: #f8f9fa;
+      border-left: 3px solid var(--primary-color);
