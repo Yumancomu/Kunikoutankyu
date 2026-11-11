@@ -28,6 +28,33 @@
       padding-bottom: 40px;
     }
 
+    /* ナビゲーションバー */
+    .navbar {
+      background-color: var(--secondary-color);
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.85rem;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .navbar a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
     header {
       background-color: var(--primary-color);
       color: #ffffff;
@@ -40,6 +67,29 @@
       max-width: 1000px;
       margin: 0 auto;
       text-align: center;
+    }
+
+    .header-title-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* タイトル横のゲームアイコンボタン */
+    .game-icon-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      width: auto;
+    }
+
+    .game-icon-btn:hover {
+      background-color: rgba(255, 255, 255, 0.4);
     }
 
     .digital-clock {
@@ -57,12 +107,12 @@
 
     header h1 {
       font-size: 1.6rem;
-      margin-bottom: 0.3rem;
     }
 
     header p {
       font-size: 0.9rem;
       color: #ecf0f1;
+      margin-top: 4px;
     }
 
     .container {
@@ -224,14 +274,67 @@
     .delete-btn:hover {
       background-color: #962d22;
     }
+
+    /* テトリス用モーダルポップアップ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+    }
+
+    #tetrisCanvas {
+      background-color: #000000;
+      border: 2px solid #333333;
+      margin: 10px auto;
+      display: block;
+    }
+
+    .tetris-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 5px;
+    }
+
+    .tetris-controls button {
+      padding: 8px;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
 
+  <!-- 上部バー（ナビゲーションメニュー） -->
+  <nav class="navbar">
+    <a href="#noticeSection">連絡事項</a>
+    <a href="#chatSection">チャット</a>
+    <a href="#attendanceSection">出欠登録</a>
+    <a href="#taskSection">タスク管理</a>
+  </nav>
+
   <header>
     <div id="clock" class="digital-clock">00:00:00</div>
     <div class="header-content">
-      <h1>クラス文化祭準備 ポータルサイト</h1>
+      <div class="header-title-container">
+        <h1>クラス文化祭準備 ポータルサイト</h1>
+        <button id="openTetrisBtn" class="game-icon-btn" type="button">GAME</button>
+      </div>
       <p>クラス用 連絡・シフト出欠・進捗写真共有ポータル</p>
     </div>
   </header>
@@ -239,7 +342,7 @@
   <div class="container">
 
     <!-- クラス内連絡 -->
-    <div class="card full-width">
+    <div class="card full-width" id="noticeSection">
       <h2>クラス内連絡事項</h2>
       <form id="noticeForm" style="margin-bottom: 15px;">
         <div style="display: flex; gap: 10px; margin-bottom: 8px;">
@@ -273,7 +376,7 @@
     </div>
 
     <!-- シフト出欠登録 -->
-    <div class="card">
+    <div class="card" id="attendanceSection">
       <h2>シフト出欠登録 (本日のシフト)</h2>
       <form id="attendanceForm">
         <div>
@@ -311,7 +414,7 @@
     </div>
 
     <!-- クラス準備タスク管理 -->
-    <div class="card full-width">
+    <div class="card full-width" id="taskSection">
       <h2>クラス準備タスク</h2>
       <form id="taskForm" style="flex-direction: row; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="taskInput" placeholder="新しいタスクを入力 (例: 背景用の黒画用紙の購入)" required style="flex: 1;">
@@ -320,6 +423,22 @@
       <div class="list-container" id="taskList"></div>
     </div>
 
+  </div>
+
+  <!-- テトリス用モーダル画面 -->
+  <div id="tetrisModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 5px;">ミニテトリス</h3>
+      <p id="tetrisScore" style="font-size: 0.85rem; margin-bottom: 5px;">SCORE: 0</p>
+      <canvas id="tetrisCanvas" width="200" height="400"></canvas>
+      <div class="tetris-controls">
+        <button id="btnLeft" type="button">左</button>
+        <button id="btnRotate" type="button">回転</button>
+        <button id="btnRight" type="button">右</button>
+        <button id="btnDown" type="button">下</button>
+      </div>
+      <button id="closeTetrisBtn" type="button" style="margin-top: 10px; background-color: #7f8c8d;">閉じる</button>
+    </div>
   </div>
 
   <script>
@@ -388,9 +507,7 @@
         delNoticeButtons.forEach(function(btn) {
           btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            noticeData = noticeData.filter(function(item) {
-              return item.id !== id;
-            });
+            noticeData = noticeData.filter(function(item) { return item.id !== id; });
             renderNotices();
           });
         });
@@ -449,9 +566,7 @@
         delChatButtons.forEach(function(btn) {
           btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            chatData = chatData.filter(function(item) {
-              return item.id !== id;
-            });
+            chatData = chatData.filter(function(item) { return item.id !== id; });
             renderChat();
           });
         });
@@ -466,7 +581,6 @@
           var imageInput = document.getElementById("chatImageInput");
 
           var file = imageInput.files[0];
-          
           if (file) {
             var reader = new FileReader();
             reader.onload = function(event) {
@@ -502,9 +616,7 @@
         { id: 2, name: "鈴木 健太", shift: "前半 (15:00-16:30)", date: today, status: "遅刻", note: "15:30到着予定" }
       ];
 
-      attendanceData = attendanceData.filter(function(item) {
-        return item.date === today;
-      });
+      attendanceData = attendanceData.filter(function(item) { return item.date === today; });
 
       function renderAttendance() {
         var list = document.getElementById("attendanceList");
@@ -537,9 +649,7 @@
         delAttButtons.forEach(function(btn) {
           btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            attendanceData = attendanceData.filter(function(item) {
-              return item.id !== id;
-            });
+            attendanceData = attendanceData.filter(function(item) { return item.id !== id; });
             renderAttendance();
           });
         });
@@ -622,9 +732,7 @@
         delTaskButtons.forEach(function(btn) {
           btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            taskData = taskData.filter(function(item) {
-              return item.id !== id;
-            });
+            taskData = taskData.filter(function(item) { return item.id !== id; });
             renderTasks();
           });
         });
@@ -646,6 +754,185 @@
           }
         });
       }
+
+      // 5. テトリス機能の構築
+      var canvas = document.getElementById("tetrisCanvas");
+      var ctx = canvas ? canvas.getContext("2d") : null;
+      var gameInterval = null;
+      var score = 0;
+      var COLS = 10;
+      var ROWS = 20;
+      var BLOCK_SIZE = 20;
+      var board = [];
+
+      var SHAPES = [
+        [[1, 1, 1, 1]],
+        [[1, 1], [1, 1]],
+        [[0, 1, 0], [1, 1, 1]],
+        [[1, 0, 0], [1, 1, 1]],
+        [[0, 0, 1], [1, 1, 1]]
+      ];
+
+      var currentPiece = null;
+
+      function resetBoard() {
+        board = [];
+        for (var r = 0; r < ROWS; r++) {
+          board[r] = [];
+          for (var c = 0; c < COLS; c++) {
+            board[r][c] = 0;
+          }
+        }
+      }
+
+      function newPiece() {
+        var shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        currentPiece = {
+          shape: shape,
+          row: 0,
+          col: Math.floor((COLS - shape[0].length) / 2)
+        };
+      }
+
+      function drawBoard() {
+        if (!ctx) return;
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (var r = 0; r < ROWS; r++) {
+          for (var c = 0; c < COLS; c++) {
+            if (board[r][c]) {
+              ctx.fillStyle = "#3498db";
+              ctx.fillRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+            }
+          }
+        }
+
+        if (currentPiece) {
+          ctx.fillStyle = "#e74c3c";
+          for (var pr = 0; pr < currentPiece.shape.length; pr++) {
+            for (var pc = 0; pc < currentPiece.shape[pr].length; pc++) {
+              if (currentPiece.shape[pr][pc]) {
+                ctx.fillRect(
+                  (currentPiece.col + pc) * BLOCK_SIZE,
+                  (currentPiece.row + pr) * BLOCK_SIZE,
+                  BLOCK_SIZE - 1,
+                  BLOCK_SIZE - 1
+                );
+              }
+            }
+          }
+        }
+      }
+
+      function canMove(p, rowOffset, colOffset, shape) {
+        shape = shape || p.shape;
+        for (var r = 0; r < shape.length; r++) {
+          for (var c = 0; c < shape[r].length; c++) {
+            if (shape[r][c]) {
+              var newR = p.row + r + rowOffset;
+              var newC = p.col + c + colOffset;
+              if (newR < 0 || newR >= ROWS || newC < 0 || newC >= COLS) return false;
+              if (board[newR][newC]) return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      function mergePiece() {
+        for (var r = 0; r < currentPiece.shape.length; r++) {
+          for (var c = 0; c < currentPiece.shape[r].length; c++) {
+            if (currentPiece.shape[r][c]) {
+              board[currentPiece.row + r][currentPiece.col + c] = 1;
+            }
+          }
+        }
+      }
+
+      function clearLines() {
+        for (var r = ROWS - 1; r >= 0; r--) {
+          var full = true;
+          for (var c = 0; c < COLS; c++) {
+            if (!board[r][c]) { full = false; break; }
+          }
+          if (full) {
+            board.splice(r, 1);
+            var newRow = [];
+            for (var i = 0; i < COLS; i++) newRow.push(0);
+            board.unshift(newRow);
+            score += 10;
+            document.getElementById("tetrisScore").textContent = "SCORE: " + score;
+            r++;
+          }
+        }
+      }
+
+      function tick() {
+        if (canMove(currentPiece, 1, 0)) {
+          currentPiece.row++;
+        } else {
+          mergePiece();
+          clearLines();
+          newPiece();
+          if (!canMove(currentPiece, 0, 0)) {
+            alert("ゲームオーバー！ SCORE: " + score);
+            resetBoard();
+            score = 0;
+            document.getElementById("tetrisScore").textContent = "SCORE: 0";
+          }
+        }
+        drawBoard();
+      }
+
+      function moveLeft() { if (currentPiece && canMove(currentPiece, 0, -1)) { currentPiece.col--; drawBoard(); } }
+      function moveRight() { if (currentPiece && canMove(currentPiece, 0, 1)) { currentPiece.col++; drawBoard(); } }
+      function moveDown() { if (currentPiece) { tick(); } }
+      function rotate() {
+        if (!currentPiece) return;
+        var s = currentPiece.shape;
+        var rotated = [];
+        for (var c = 0; c < s[0].length; c++) {
+          rotated[c] = [];
+          for (var r = s.length - 1; r >= 0; r--) {
+            rotated[c].push(s[r][c]);
+          }
+        }
+        if (canMove(currentPiece, 0, 0, rotated)) {
+          currentPiece.shape = rotated;
+          drawBoard();
+        }
+      }
+
+      // モーダルの開閉処理
+      var openBtn = document.getElementById("openTetrisBtn");
+      var closeBtn = document.getElementById("closeTetrisBtn");
+      var modal = document.getElementById("tetrisModal");
+
+      if (openBtn && modal) {
+        openBtn.addEventListener("click", function() {
+          modal.style.display = "flex";
+          resetBoard();
+          score = 0;
+          document.getElementById("tetrisScore").textContent = "SCORE: 0";
+          newPiece();
+          drawBoard();
+          if (gameInterval) clearInterval(gameInterval);
+          gameInterval = setInterval(tick, 500);
+        });
+      }
+
+      if (closeBtn && modal) {
+        closeBtn.addEventListener("click", function() {
+          modal.style.display = "none";
+          if (gameInterval) clearInterval(gameInterval);
+        });
+      }
+
+      document.getElementById("btnLeft").addEventListener("click", moveLeft);
+      document.getElementById("btnRight").addEventListener("click", moveRight);
+      document.getElementById("btnDown").addEventListener("click", moveDown);
+      document.getElementById("btnRotate").addEventListener("click", rotate);
 
       // 初期表示実行
       renderNotices();
