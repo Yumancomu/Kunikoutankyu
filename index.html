@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <!-- Supabaseの読み込み -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>1800文化祭ツール</title>
+  <!-- Supabaseの読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -78,7 +78,6 @@
       gap: 10px;
     }
 
-    /* タイトル横のゲームアイコンボタン */
     .game-icon-btn {
       background-color: rgba(255, 255, 255, 0.2);
       border: 1px solid #ffffff;
@@ -277,7 +276,6 @@
       background-color: #962d22;
     }
 
-    /* テトリス用モーダルポップアップ */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -317,49 +315,35 @@
     .tetris-controls button {
       padding: 8px;
       font-size: 0.8rem;
+    }
 
-      /* スマホ・iPad対応のレスポンシブ設定 */
-@media (max-width: 768px) {
-  /* スマホ・iPad（縦向き）の時は1列でスッキリ表示 */
-  .container {
-    grid-template-columns: 1fr !important;
-    padding: 0 10px;
-    margin-top: 10px;
-  }
-
-  .card full-width {
-    grid-column: span 1 !important;
-  }
-
-  /* 上部メニューバーの文字サイズと隙間を自動調整 */
-  .navbar {
-    flex-wrap: wrap;
-    gap: 5px;
-    padding: 8px;
-  }
-
-  .navbar a {
-    font-size: 0.8rem;
-    padding: 4px 6px;
-  }
-
-  /* フォームのボタンや入力欄を押しやすく調整 */
-  input, select, textarea, button {
-    font-size: 16px !important; /* iPhone/iPadでの勝手な画面ズームを防止 */
-  }
-
-  /* ヘッダーの文字サイズを画面サイズに合わせる */
-  header h1 {
-    font-size: 1.1rem;
-  }
-}
-
+    /* スマホ・iPad対応のレスポンシブ設定 */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr !important;
+        padding: 0 10px;
+        margin-top: 10px;
+      }
+      .navbar {
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 8px;
+      }
+      .navbar a {
+        font-size: 0.8rem;
+        padding: 4px 6px;
+      }
+      input, select, textarea, button {
+        font-size: 16px !important;
+      }
+      header h1 {
+        font-size: 1.1rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- 上部バー（ナビゲーションメニュー） -->
   <nav class="navbar">
     <a href="#noticeSection">連絡事項</a>
     <a href="#chatSection">チャット</a>
@@ -379,7 +363,6 @@
   </header>
 
   <div class="container">
-
     <!-- クラス内連絡 -->
     <div class="card full-width" id="noticeSection">
       <h2>クラス内連絡事項</h2>
@@ -417,8 +400,6 @@
     <!-- シフト出欠登録 -->
     <div class="card" id="attendanceSection">
       <h2>シフト出欠登録 (本日のシフト)</h2>
-
-
       <form id="attendanceForm">
         <div>
           <label for="studentName">氏名</label>
@@ -463,7 +444,6 @@
       </form>
       <div class="list-container" id="taskList"></div>
     </div>
-
   </div>
 
   <!-- テトリス用モーダル画面 -->
@@ -483,30 +463,14 @@
   </div>
 
   <script>
-      // Supabaseの初期化（さきほどコピーした値に書き換えてください）
-      var SUPABASE_URL = "cypeacjghijhfupwwzig";
-      var SUPABASE_KEY = "ap-southeast-1 / public key";
-      var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Supabaseの初期化
+    // ※必要に応じてあなたの正確な URL と anon キーに書き換えてください
+    var SUPABASE_URL = "https://cypeacjghijhfupwwzig.supabase.co"; // または固有のURL
+    var SUPABASE_KEY = "あなたのanonキーをここに貼り付けてください";
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            // ==== チャットのリアルタイム同期 ====
-      async function fetchAndSubscribeChat() {
-        var res = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
-        if (res.data) chatData = res.data;
-        renderChat();
-
-        supabaseClient.channel('public:chats')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, async function() {
-            var updated = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
-            if (updated.data) chatData = updated.data;
-            renderChat();
-          })
-          .subscribe();
-      }
-      fetchAndSubscribeChat();
-
-    
     document.addEventListener("DOMContentLoaded", function() {
-      // 日付と時刻の補助関数
+      // 日付・時刻の補助関数
       function getTodayString() {
         var now = new Date();
         var year = now.getFullYear();
@@ -537,11 +501,25 @@
       setInterval(updateClock, 1000);
       updateClock();
 
-      // 1. 連絡事項データ管理
-      var noticeData = [
-        { id: 1, title: "役割分担と作業場所について", detail: "内装作業は教室前方、小道具制作は廊下側で行います。作業後の清掃を徹底してください。", date: "2026/11/10" },
-        { id: 2, title: "出欠入力について", detail: "放課後の準備シフトへの参加可否を以下のフォームより回答してください。", date: "2026/11/08" }
-      ];
+      // ==========================================
+      // 1. 連絡事項 (Supabase連携)
+      // ==========================================
+      var noticeData = [];
+
+      async function fetchAndSubscribeNotices() {
+        var res = await supabaseClient.from('notices').select('*').order('created_at', { ascending: false });
+        if (res.data) noticeData = res.data;
+        renderNotices();
+
+        supabaseClient.channel('public:notices')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'notices' }, async function() {
+            var updated = await supabaseClient.from('notices').select('*').order('created_at', { ascending: false });
+            if (updated.data) noticeData = updated.data;
+            renderNotices();
+          })
+          .subscribe();
+      }
+      fetchAndSubscribeNotices();
 
       function renderNotices() {
         var list = document.getElementById("noticeList");
@@ -557,7 +535,7 @@
           var item = noticeData[i];
           html += '<div class="notice-item">' +
                     '<div>' +
-                      '<div class="notice-date">' + item.date + '</div>' +
+                      '<div class="notice-date">' + (item.date || '') + '</div>' +
                       '<strong>' + item.title + '</strong>' +
                       '<p style="font-size: 0.9rem; margin-top: 4px;">' + item.detail + '</p>' +
                     '</div>' +
@@ -568,38 +546,51 @@
 
         var delNoticeButtons = list.querySelectorAll(".delete-notice-btn");
         delNoticeButtons.forEach(function(btn) {
-          btn.addEventListener("click", function() {
+          btn.addEventListener("click", async function() {
             var id = Number(this.getAttribute("data-id"));
-            noticeData = noticeData.filter(function(item) { return item.id !== id; });
-            renderNotices();
+            await supabaseClient.from('notices').delete().eq('id', id);
           });
         });
       }
 
       var noticeForm = document.getElementById("noticeForm");
       if (noticeForm) {
-        noticeForm.addEventListener("submit", function(e) {
+        noticeForm.addEventListener("submit", async function(e) {
           e.preventDefault();
           var titleInput = document.getElementById("noticeTitle");
           var detailInput = document.getElementById("noticeDetail");
 
-          noticeData.unshift({
+          await supabaseClient.from('notices').insert([{
             id: Date.now(),
             title: titleInput.value,
             detail: detailInput.value,
             date: today.replace(/-/g, "/")
-          });
+          }]);
 
-          renderNotices();
           titleInput.value = "";
           detailInput.value = "";
         });
       }
 
-      // 2. チャット & 画像共有データ管理
-      var chatData = [
-        { id: 1, name: "広報担当", message: "本日の外装作業の様子です！", image: "", time: "15:20" }
-      ];
+      // ==========================================
+      // 2. チャット & 画像共有 (Supabase連携)
+      // ==========================================
+      var chatData = [];
+
+      async function fetchAndSubscribeChat() {
+        var res = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
+        if (res.data) chatData = res.data;
+        renderChat();
+
+        supabaseClient.channel('public:chats')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, async function() {
+            var updated = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
+            if (updated.data) chatData = updated.data;
+            renderChat();
+          })
+          .subscribe();
+      }
+      fetchAndSubscribeChat();
 
       function renderChat() {
         var list = document.getElementById("chatList");
@@ -616,7 +607,7 @@
           var imgHtml = item.image ? '<img src="' + item.image + '" class="chat-image" alt="進捗写真">' : '';
           html += '<div class="chat-item">' +
                     '<div>' +
-                      '<div class="chat-meta"><strong>' + item.name + '</strong> (' + item.time + ')</div>' +
+                      '<div class="chat-meta"><strong>' + item.name + '</strong> (' + (item.time || '') + ')</div>' +
                       '<div>' + item.message + '</div>' +
                       imgHtml +
                     '</div>' +
@@ -627,15 +618,14 @@
 
         var delChatButtons = list.querySelectorAll(".delete-chat-btn");
         delChatButtons.forEach(function(btn) {
-          btn.addEventListener("click", function() {
+          btn.addEventListener("click", async function() {
             var id = Number(this.getAttribute("data-id"));
-            chatData = chatData.filter(function(item) { return item.id !== id; });
-            renderChat();
+            await supabaseClient.from('chats').delete().eq('id', id);
           });
         });
       }
 
-         var chatForm = document.getElementById("chatForm");
+      var chatForm = document.getElementById("chatForm");
       if (chatForm) {
         chatForm.addEventListener("submit", async function(e) {
           e.preventDefault();
@@ -647,7 +637,6 @@
           if (file) {
             var reader = new FileReader();
             reader.onload = async function(event) {
-              // 画像があるときのSupabase送信
               await supabaseClient.from('chats').insert([{
                 id: Date.now(),
                 name: nameInput.value,
@@ -655,13 +644,11 @@
                 image: event.target.result,
                 time: getTimeString()
               }]);
-              
               messageInput.value = "";
               imageInput.value = "";
             };
             reader.readAsDataURL(file);
           } else {
-            // 画像がないときのSupabase送信
             await supabaseClient.from('chats').insert([{
               id: Date.now(),
               name: nameInput.value,
@@ -669,44 +656,46 @@
               image: "",
               time: getTimeString()
             }]);
-            
-            messageInput.value = "";
-          }
-        });
-      }
-            chatData.unshift({
-              id: Date.now(),
-              name: nameInput.value,
-              message: messageInput.value,
-              image: "",
-              time: getTimeString()
-            });
-            renderChat();
             messageInput.value = "";
           }
         });
       }
 
-      // 3. 出欠データ管理
-      var attendanceData = [
-        { id: 1, name: "佐藤 花子", shift: "前半 (15:00-16:30)", date: today, status: "出席", note: "" },
-        { id: 2, name: "鈴木 健太", shift: "前半 (15:00-16:30)", date: today, status: "遅刻", note: "15:30到着予定" }
-      ];
+      // ==========================================
+      // 3. 出欠データ管理 (Supabase連携)
+      // ==========================================
+      var attendanceData = [];
 
-      attendanceData = attendanceData.filter(function(item) { return item.date === today; });
+      async function fetchAndSubscribeAttendance() {
+        var res = await supabaseClient.from('attendance').select('*').order('created_at', { ascending: false });
+        if (res.data) attendanceData = res.data;
+        renderAttendance();
+
+        supabaseClient.channel('public:attendance')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, async function() {
+            var updated = await supabaseClient.from('attendance').select('*').order('created_at', { ascending: false });
+            if (updated.data) attendanceData = updated.data;
+            renderAttendance();
+          })
+          .subscribe();
+      }
+      fetchAndSubscribeAttendance();
 
       function renderAttendance() {
         var list = document.getElementById("attendanceList");
         if (!list) return;
 
-        if (attendanceData.length === 0) {
+        // 本日の分だけに絞り込む
+        var todayList = attendanceData.filter(function(item) { return item.date === today; });
+
+        if (todayList.length === 0) {
           list.innerHTML = '<p style="color: #888888; text-align: center;">本日の出欠登録はありません</p>';
           return;
         }
 
         var html = "";
-        for (var i = 0; i < attendanceData.length; i++) {
-          var item = attendanceData[i];
+        for (var i = 0; i < todayList.length; i++) {
+          var item = todayList[i];
           var noteHtml = item.note ? '<br><small style="color: #888888;">備考: ' + item.note + '</small>' : '';
           html += '<div class="item">' +
                     '<div>' +
@@ -724,44 +713,55 @@
 
         var delAttButtons = list.querySelectorAll(".delete-att-btn");
         delAttButtons.forEach(function(btn) {
-          btn.addEventListener("click", function() {
+          btn.addEventListener("click", async function() {
             var id = Number(this.getAttribute("data-id"));
-            attendanceData = attendanceData.filter(function(item) { return item.id !== id; });
-            renderAttendance();
+            await supabaseClient.from('attendance').delete().eq('id', id);
           });
         });
       }
 
       var attendanceForm = document.getElementById("attendanceForm");
       if (attendanceForm) {
-        attendanceForm.addEventListener("submit", function(e) {
+        attendanceForm.addEventListener("submit", async function(e) {
           e.preventDefault();
           var nameInput = document.getElementById("studentName");
           var shiftInput = document.getElementById("shiftTime");
           var statusInput = document.getElementById("attendanceStatus");
           var noteInput = document.getElementById("attendanceNote");
 
-          attendanceData.unshift({
+          await supabaseClient.from('attendance').insert([{
             id: Date.now(),
             name: nameInput.value,
             shift: shiftInput.value,
             date: today,
             status: statusInput.value,
             note: noteInput.value
-          });
+          }]);
 
-          renderAttendance();
           nameInput.value = "";
           noteInput.value = "";
         });
       }
 
-      // 4. タスク管理
-      var taskData = [
-        { id: 1, title: "看板デザイン作成", status: "done" },
-        { id: 2, title: "外装用ダンボールの確保", status: "doing" },
-        { id: 3, title: "シフト表の最終確認", status: "todo" }
-      ];
+      // ==========================================
+      // 4. タスク管理 (Supabase連携)
+      // ==========================================
+      var taskData = [];
+
+      async function fetchAndSubscribeTasks() {
+        var res = await supabaseClient.from('tasks').select('*').order('created_at', { ascending: false });
+        if (res.data) taskData = res.data;
+        renderTasks();
+
+        supabaseClient.channel('public:tasks')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, async function() {
+            var updated = await supabaseClient.from('tasks').select('*').order('created_at', { ascending: false });
+            if (updated.data) taskData = updated.data;
+            renderTasks();
+          })
+          .subscribe();
+      }
+      fetchAndSubscribeTasks();
 
       function renderTasks() {
         var list = document.getElementById("taskList");
@@ -777,7 +777,7 @@
 
         for (var i = 0; i < taskData.length; i++) {
           var task = taskData[i];
-          var progressBtn = task.status !== "done" ? '<button class="action-btn advance-btn" type="button" data-id="' + task.id + '">進める</button>' : '';
+          var progressBtn = task.status !== "done" ? '<button class="action-btn advance-btn" type="button" data-id="' + task.id + '" data-status="' + task.status + '">進める</button>' : '';
 
           html += '<div class="item">' +
                     '<div><strong>' + task.title + '</strong></div>' +
@@ -792,47 +792,45 @@
 
         var advButtons = list.querySelectorAll(".advance-btn");
         advButtons.forEach(function(btn) {
-          btn.addEventListener("click", function() {
+          btn.addEventListener("click", async function() {
             var id = Number(this.getAttribute("data-id"));
-            for (var j = 0; j < taskData.length; j++) {
-              if (taskData[j].id === id) {
-                if (taskData[j].status === "todo") taskData[j].status = "doing";
-                else if (taskData[j].status === "doing") taskData[j].status = "done";
-                break;
-              }
-            }
-            renderTasks();
+            var currentStatus = this.getAttribute("data-status");
+            var nextStatus = "doing";
+            if (currentStatus === "todo") nextStatus = "doing";
+            else if (currentStatus === "doing") nextStatus = "done";
+
+            await supabaseClient.from('tasks').update({ status: nextStatus }).eq('id', id);
           });
         });
 
         var delTaskButtons = list.querySelectorAll(".delete-task-btn");
         delTaskButtons.forEach(function(btn) {
-          btn.addEventListener("click", function() {
+          btn.addEventListener("click", async function() {
             var id = Number(this.getAttribute("data-id"));
-            taskData = taskData.filter(function(item) { return item.id !== id; });
-            renderTasks();
+            await supabaseClient.from('tasks').delete().eq('id', id);
           });
         });
       }
 
       var taskForm = document.getElementById("taskForm");
       if (taskForm) {
-        taskForm.addEventListener("submit", function(e) {
+        taskForm.addEventListener("submit", async function(e) {
           e.preventDefault();
           var input = document.getElementById("taskInput");
           if (input && input.value.trim() !== "") {
-            taskData.push({
+            await supabaseClient.from('tasks').insert([{
               id: Date.now(),
               title: input.value,
               status: "todo"
             });
             input.value = "";
-            renderTasks();
           }
         });
       }
 
+      // ==========================================
       // 5. テトリス機能の構築
+      // ==========================================
       var canvas = document.getElementById("tetrisCanvas");
       var ctx = canvas ? canvas.getContext("2d") : null;
       var gameInterval = null;
@@ -981,7 +979,6 @@
         }
       }
 
-      // モーダルの開閉処理
       var openBtn = document.getElementById("openTetrisBtn");
       var closeBtn = document.getElementById("closeTetrisBtn");
       var modal = document.getElementById("tetrisModal");
@@ -1006,16 +1003,15 @@
         });
       }
 
-      document.getElementById("btnLeft").addEventListener("click", moveLeft);
-      document.getElementById("btnRight").addEventListener("click", moveRight);
-      document.getElementById("btnDown").addEventListener("click", moveDown);
-      document.getElementById("btnRotate").addEventListener("click", rotate);
+      var btnLeft = document.getElementById("btnLeft");
+      var btnRight = document.getElementById("btnRight");
+      var btnDown = document.getElementById("btnDown");
+      var btnRotate = document.getElementById("btnRotate");
 
-      // 初期表示実行
-      renderNotices();
-      renderChat();
-      renderAttendance();
-      renderTasks();
+      if (btnLeft) btnLeft.addEventListener("click", moveLeft);
+      if (btnRight) btnRight.addEventListener("click", moveRight);
+      if (btnDown) btnDown.addEventListener("click", moveDown);
+      if (btnRotate) btnRotate.addEventListener("click", rotate);
     });
   </script>
 </body>
