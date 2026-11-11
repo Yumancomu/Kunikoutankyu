@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>1800文化祭ツール</title>
-  <!-- Supabaseの読み込み (v2) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>クラス文化祭準備 ポータルサイト</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -69,6 +67,29 @@
       max-width: 1000px;
       margin: 0 auto;
       text-align: center;
+    }
+
+    .header-title-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* タイトル横のゲームアイコンボタン */
+    .game-icon-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      width: auto;
+    }
+
+    .game-icon-btn:hover {
+      background-color: rgba(255, 255, 255, 0.4);
     }
 
     .digital-clock {
@@ -254,33 +275,52 @@
       background-color: #962d22;
     }
 
-    /* スマホ・iPad対応のレスポンシブ設定 */
-    @media (max-width: 768px) {
-      .container {
-        grid-template-columns: 1fr !important;
-        padding: 0 10px;
-        margin-top: 10px;
-      }
-      .navbar {
-        flex-wrap: wrap;
-        gap: 5px;
-        padding: 8px;
-      }
-      .navbar a {
-        font-size: 0.8rem;
-        padding: 4px 6px;
-      }
-      input, select, textarea, button {
-        font-size: 16px !important;
-      }
-      header h1 {
-        font-size: 1.1rem;
-      }
+    /* テトリス用モーダルポップアップ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+    }
+
+    #tetrisCanvas {
+      background-color: #000000;
+      border: 2px solid #333333;
+      margin: 10px auto;
+      display: block;
+    }
+
+    .tetris-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 5px;
+    }
+
+    .tetris-controls button {
+      padding: 8px;
+      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
 
+  <!-- 上部バー（ナビゲーションメニュー） -->
   <nav class="navbar">
     <a href="#noticeSection">連絡事項</a>
     <a href="#chatSection">チャット</a>
@@ -291,12 +331,16 @@
   <header>
     <div id="clock" class="digital-clock">00:00:00</div>
     <div class="header-content">
-      <h1>クラス文化祭準備 ポータルサイト</h1>
+      <div class="header-title-container">
+        <h1>クラス文化祭準備 ポータルサイト</h1>
+        <button id="openTetrisBtn" class="game-icon-btn" type="button">GAME</button>
+      </div>
       <p>クラス用 連絡・シフト出欠・進捗写真共有ポータル</p>
     </div>
   </header>
 
   <div class="container">
+
     <!-- クラス内連絡 -->
     <div class="card full-width" id="noticeSection">
       <h2>クラス内連絡事項</h2>
@@ -314,7 +358,7 @@
 
     <!-- クラスチャット & 進捗写真投稿 -->
     <div class="card full-width" id="chatSection">
-      <h2>クラスチャット</h2>
+      <h2>クラスチャット & 進捗写真共有</h2>
       <form id="chatForm" style="margin-bottom: 15px;">
         <div style="display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
           <input type="text" id="chatName" placeholder="名前" required style="width: 140px;">
@@ -378,31 +422,28 @@
       </form>
       <div class="list-container" id="taskList"></div>
     </div>
+
+  </div>
+
+  <!-- テトリス用モーダル画面 -->
+  <div id="tetrisModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 5px;">ミニテトリス</h3>
+      <p id="tetrisScore" style="font-size: 0.85rem; margin-bottom: 5px;">SCORE: 0</p>
+      <canvas id="tetrisCanvas" width="200" height="400"></canvas>
+      <div class="tetris-controls">
+        <button id="btnLeft" type="button">左</button>
+        <button id="btnRotate" type="button">回転</button>
+        <button id="btnRight" type="button">右</button>
+        <button id="btnDown" type="button">下</button>
+      </div>
+      <button id="closeTetrisBtn" type="button" style="margin-top: 10px; background-color: #7f8c8d;">閉じる</button>
+    </div>
   </div>
 
   <script>
-    // Supabaseの初期化（設定済み）
-    var SUPABASE_URL = "https://cypeacjghijhfupwwzig.supabase.co";
-    var SUPABASE_KEY = "sb_publishable_9X3D2uUwJEgbl5eduJh6FA_GDxXvAgb";
-    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // デジタル時計（独立して常時実行）
-    function updateClock() {
-      var clockElement = document.getElementById("clock");
-      if (clockElement) {
-        var now = new Date();
-        var hours = String(now.getHours()).padStart(2, "0");
-        var minutes = String(now.getMinutes()).padStart(2, "0");
-        var seconds = String(now.getSeconds()).padStart(2, "0");
-        clockElement.textContent = hours + ":" + minutes + ":" + seconds;
-      }
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    document.getElementById("clock").style.display = "block";
-
     document.addEventListener("DOMContentLoaded", function() {
+      // 日付と時刻の補助関数
       function getTodayString() {
         var now = new Date();
         var year = now.getFullYear();
@@ -419,25 +460,25 @@
         return hours + ":" + minutes;
       }
 
-      // ==========================================
-      // 1. 連絡事項 (Supabase連携)
-      // ==========================================
-      var noticeData = [];
-
-      async function fetchAndSubscribeNotices() {
-        var res = await supabaseClient.from('notices').select('*').order('created_at', { ascending: false });
-        if (res.data) noticeData = res.data;
-        renderNotices();
-
-        supabaseClient.channel('public:notices')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'notices' }, async function() {
-            var updated = await supabaseClient.from('notices').select('*').order('created_at', { ascending: false });
-            if (updated.data) noticeData = updated.data;
-            renderNotices();
-          })
-          .subscribe();
+      // デジタル時計
+      function updateClock() {
+        var clockElement = document.getElementById("clock");
+        if (clockElement) {
+          var now = new Date();
+          var hours = String(now.getHours()).padStart(2, "0");
+          var minutes = String(now.getMinutes()).padStart(2, "0");
+          var seconds = String(now.getSeconds()).padStart(2, "0");
+          clockElement.textContent = hours + ":" + minutes + ":" + seconds;
+        }
       }
-      fetchAndSubscribeNotices();
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      // 1. 連絡事項データ管理
+      var noticeData = [
+        { id: 1, title: "役割分担と作業場所について", detail: "内装作業は教室前方、小道具制作は廊下側で行います。作業後の清掃を徹底してください。", date: "2026/11/10" },
+        { id: 2, title: "出欠入力について", detail: "放課後の準備シフトへの参加可否を以下のフォームより回答してください。", date: "2026/11/08" }
+      ];
 
       function renderNotices() {
         var list = document.getElementById("noticeList");
@@ -453,7 +494,7 @@
           var item = noticeData[i];
           html += '<div class="notice-item">' +
                     '<div>' +
-                      '<div class="notice-date">' + (item.date || '') + '</div>' +
+                      '<div class="notice-date">' + item.date + '</div>' +
                       '<strong>' + item.title + '</strong>' +
                       '<p style="font-size: 0.9rem; margin-top: 4px;">' + item.detail + '</p>' +
                     '</div>' +
@@ -464,51 +505,38 @@
 
         var delNoticeButtons = list.querySelectorAll(".delete-notice-btn");
         delNoticeButtons.forEach(function(btn) {
-          btn.addEventListener("click", async function() {
+          btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            await supabaseClient.from('notices').delete().eq('id', id);
+            noticeData = noticeData.filter(function(item) { return item.id !== id; });
+            renderNotices();
           });
         });
       }
 
       var noticeForm = document.getElementById("noticeForm");
       if (noticeForm) {
-        noticeForm.addEventListener("submit", async function(e) {
+        noticeForm.addEventListener("submit", function(e) {
           e.preventDefault();
           var titleInput = document.getElementById("noticeTitle");
           var detailInput = document.getElementById("noticeDetail");
 
-          await supabaseClient.from('notices').insert([{
+          noticeData.unshift({
             id: Date.now(),
             title: titleInput.value,
             detail: detailInput.value,
             date: today.replace(/-/g, "/")
-          }]);
+          });
 
+          renderNotices();
           titleInput.value = "";
           detailInput.value = "";
         });
       }
 
-      // ==========================================
-      // 2. チャット & 画像共有 (Supabase連携)
-      // ==========================================
-      var chatData = [];
-
-      async function fetchAndSubscribeChat() {
-        var res = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
-        if (res.data) chatData = res.data;
-        renderChat();
-
-        supabaseClient.channel('public:chats')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, async function() {
-            var updated = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
-            if (updated.data) chatData = updated.data;
-            renderChat();
-          })
-          .subscribe();
-      }
-      fetchAndSubscribeChat();
+      // 2. チャット & 画像共有データ管理
+      var chatData = [
+        { id: 1, name: "広報担当", message: "本日の外装作業の様子です！", image: "", time: "15:20" }
+      ];
 
       function renderChat() {
         var list = document.getElementById("chatList");
@@ -525,7 +553,7 @@
           var imgHtml = item.image ? '<img src="' + item.image + '" class="chat-image" alt="進捗写真">' : '';
           html += '<div class="chat-item">' +
                     '<div>' +
-                      '<div class="chat-meta"><strong>' + item.name + '</strong> (' + (item.time || '') + ')</div>' +
+                      '<div class="chat-meta"><strong>' + item.name + '</strong> (' + item.time + ')</div>' +
                       '<div>' + item.message + '</div>' +
                       imgHtml +
                     '</div>' +
@@ -536,16 +564,17 @@
 
         var delChatButtons = list.querySelectorAll(".delete-chat-btn");
         delChatButtons.forEach(function(btn) {
-          btn.addEventListener("click", async function() {
+          btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            await supabaseClient.from('chats').delete().eq('id', id);
+            chatData = chatData.filter(function(item) { return item.id !== id; });
+            renderChat();
           });
         });
       }
 
       var chatForm = document.getElementById("chatForm");
       if (chatForm) {
-        chatForm.addEventListener("submit", async function(e) {
+        chatForm.addEventListener("submit", function(e) {
           e.preventDefault();
           var nameInput = document.getElementById("chatName");
           var messageInput = document.getElementById("chatMessage");
@@ -554,65 +583,53 @@
           var file = imageInput.files[0];
           if (file) {
             var reader = new FileReader();
-            reader.onload = async function(event) {
-              await supabaseClient.from('chats').insert([{
+            reader.onload = function(event) {
+              chatData.unshift({
                 id: Date.now(),
                 name: nameInput.value,
                 message: messageInput.value,
                 image: event.target.result,
                 time: getTimeString()
-              }]);
+              });
+              renderChat();
               messageInput.value = "";
               imageInput.value = "";
             };
             reader.readAsDataURL(file);
           } else {
-            await supabaseClient.from('chats').insert([{
+            chatData.unshift({
               id: Date.now(),
               name: nameInput.value,
               message: messageInput.value,
               image: "",
               time: getTimeString()
-            }]);
+            });
+            renderChat();
             messageInput.value = "";
           }
         });
       }
 
-      // ==========================================
-      // 3. 出欠データ管理 (Supabase連携)
-      // ==========================================
-      var attendanceData = [];
+      // 3. 出欠データ管理
+      var attendanceData = [
+        { id: 1, name: "佐藤 花子", shift: "前半 (15:00-16:30)", date: today, status: "出席", note: "" },
+        { id: 2, name: "鈴木 健太", shift: "前半 (15:00-16:30)", date: today, status: "遅刻", note: "15:30到着予定" }
+      ];
 
-      async function fetchAndSubscribeAttendance() {
-        var res = await supabaseClient.from('attendance').select('*').order('created_at', { ascending: false });
-        if (res.data) attendanceData = res.data;
-        renderAttendance();
-
-        supabaseClient.channel('public:attendance')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, async function() {
-            var updated = await supabaseClient.from('attendance').select('*').order('created_at', { ascending: false });
-            if (updated.data) attendanceData = updated.data;
-            renderAttendance();
-          })
-          .subscribe();
-      }
-      fetchAndSubscribeAttendance();
+      attendanceData = attendanceData.filter(function(item) { return item.date === today; });
 
       function renderAttendance() {
         var list = document.getElementById("attendanceList");
         if (!list) return;
 
-        var todayList = attendanceData.filter(function(item) { return item.date === today; });
-
-        if (todayList.length === 0) {
+        if (attendanceData.length === 0) {
           list.innerHTML = '<p style="color: #888888; text-align: center;">本日の出欠登録はありません</p>';
           return;
         }
 
         var html = "";
-        for (var i = 0; i < todayList.length; i++) {
-          var item = todayList[i];
+        for (var i = 0; i < attendanceData.length; i++) {
+          var item = attendanceData[i];
           var noteHtml = item.note ? '<br><small style="color: #888888;">備考: ' + item.note + '</small>' : '';
           html += '<div class="item">' +
                     '<div>' +
@@ -630,55 +647,44 @@
 
         var delAttButtons = list.querySelectorAll(".delete-att-btn");
         delAttButtons.forEach(function(btn) {
-          btn.addEventListener("click", async function() {
+          btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            await supabaseClient.from('attendance').delete().eq('id', id);
+            attendanceData = attendanceData.filter(function(item) { return item.id !== id; });
+            renderAttendance();
           });
         });
       }
 
       var attendanceForm = document.getElementById("attendanceForm");
       if (attendanceForm) {
-        attendanceForm.addEventListener("submit", async function(e) {
+        attendanceForm.addEventListener("submit", function(e) {
           e.preventDefault();
           var nameInput = document.getElementById("studentName");
           var shiftInput = document.getElementById("shiftTime");
           var statusInput = document.getElementById("attendanceStatus");
           var noteInput = document.getElementById("attendanceNote");
 
-          await supabaseClient.from('attendance').insert([{
+          attendanceData.unshift({
             id: Date.now(),
             name: nameInput.value,
             shift: shiftInput.value,
             date: today,
             status: statusInput.value,
             note: noteInput.value
-          }]);
+          });
 
+          renderAttendance();
           nameInput.value = "";
           noteInput.value = "";
         });
       }
 
-      // ==========================================
-      // 4. タスク管理 (Supabase連携)
-      // ==========================================
-      var taskData = [];
-
-      async function fetchAndSubscribeTasks() {
-        var res = await supabaseClient.from('tasks').select('*').order('created_at', { ascending: false });
-        if (res.data) taskData = res.data;
-        renderTasks();
-
-        supabaseClient.channel('public:tasks')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, async function() {
-            var updated = await supabaseClient.from('tasks').select('*').order('created_at', { ascending: false });
-            if (updated.data) taskData = updated.data;
-            renderTasks();
-          })
-          .subscribe();
-      }
-      fetchAndSubscribeTasks();
+      // 4. タスク管理
+      var taskData = [
+        { id: 1, title: "看板デザイン作成", status: "done" },
+        { id: 2, title: "外装用ダンボールの確保", status: "doing" },
+        { id: 3, title: "シフト表の最終確認", status: "todo" }
+      ];
 
       function renderTasks() {
         var list = document.getElementById("taskList");
@@ -694,7 +700,7 @@
 
         for (var i = 0; i < taskData.length; i++) {
           var task = taskData[i];
-          var progressBtn = task.status !== "done" ? '<button class="action-btn advance-btn" type="button" data-id="' + task.id + '" data-status="' + task.status + '">進める</button>' : '';
+          var progressBtn = task.status !== "done" ? '<button class="action-btn advance-btn" type="button" data-id="' + task.id + '">進める</button>' : '';
 
           html += '<div class="item">' +
                     '<div><strong>' + task.title + '</strong></div>' +
@@ -709,41 +715,230 @@
 
         var advButtons = list.querySelectorAll(".advance-btn");
         advButtons.forEach(function(btn) {
-          btn.addEventListener("click", async function() {
+          btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            var currentStatus = this.getAttribute("data-status");
-            var nextStatus = "doing";
-            if (currentStatus === "todo") nextStatus = "doing";
-            else if (currentStatus === "doing") nextStatus = "done";
-
-            await supabaseClient.from('tasks').update({ status: nextStatus }).eq('id', id);
+            for (var j = 0; j < taskData.length; j++) {
+              if (taskData[j].id === id) {
+                if (taskData[j].status === "todo") taskData[j].status = "doing";
+                else if (taskData[j].status === "doing") taskData[j].status = "done";
+                break;
+              }
+            }
+            renderTasks();
           });
         });
 
         var delTaskButtons = list.querySelectorAll(".delete-task-btn");
         delTaskButtons.forEach(function(btn) {
-          btn.addEventListener("click", async function() {
+          btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
-            await supabaseClient.from('tasks').delete().eq('id', id);
+            taskData = taskData.filter(function(item) { return item.id !== id; });
+            renderTasks();
           });
         });
       }
 
       var taskForm = document.getElementById("taskForm");
       if (taskForm) {
-        taskForm.addEventListener("submit", async function(e) {
+        taskForm.addEventListener("submit", function(e) {
           e.preventDefault();
           var input = document.getElementById("taskInput");
           if (input && input.value.trim() !== "") {
-            await supabaseClient.from('tasks').insert([{
+            taskData.push({
               id: Date.now(),
               title: input.value,
               status: "todo"
             });
             input.value = "";
+            renderTasks();
           }
         });
       }
+
+      // 5. テトリス機能の構築
+      var canvas = document.getElementById("tetrisCanvas");
+      var ctx = canvas ? canvas.getContext("2d") : null;
+      var gameInterval = null;
+      var score = 0;
+      var COLS = 10;
+      var ROWS = 20;
+      var BLOCK_SIZE = 20;
+      var board = [];
+
+      var SHAPES = [
+        [[1, 1, 1, 1]],
+        [[1, 1], [1, 1]],
+        [[0, 1, 0], [1, 1, 1]],
+        [[1, 0, 0], [1, 1, 1]],
+        [[0, 0, 1], [1, 1, 1]]
+      ];
+
+      var currentPiece = null;
+
+      function resetBoard() {
+        board = [];
+        for (var r = 0; r < ROWS; r++) {
+          board[r] = [];
+          for (var c = 0; c < COLS; c++) {
+            board[r][c] = 0;
+          }
+        }
+      }
+
+      function newPiece() {
+        var shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        currentPiece = {
+          shape: shape,
+          row: 0,
+          col: Math.floor((COLS - shape[0].length) / 2)
+        };
+      }
+
+      function drawBoard() {
+        if (!ctx) return;
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (var r = 0; r < ROWS; r++) {
+          for (var c = 0; c < COLS; c++) {
+            if (board[r][c]) {
+              ctx.fillStyle = "#3498db";
+              ctx.fillRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+            }
+          }
+        }
+
+        if (currentPiece) {
+          ctx.fillStyle = "#e74c3c";
+          for (var pr = 0; pr < currentPiece.shape.length; pr++) {
+            for (var pc = 0; pc < currentPiece.shape[pr].length; pc++) {
+              if (currentPiece.shape[pr][pc]) {
+                ctx.fillRect(
+                  (currentPiece.col + pc) * BLOCK_SIZE,
+                  (currentPiece.row + pr) * BLOCK_SIZE,
+                  BLOCK_SIZE - 1,
+                  BLOCK_SIZE - 1
+                );
+              }
+            }
+          }
+        }
+      }
+
+      function canMove(p, rowOffset, colOffset, shape) {
+        shape = shape || p.shape;
+        for (var r = 0; r < shape.length; r++) {
+          for (var c = 0; c < shape[r].length; c++) {
+            if (shape[r][c]) {
+              var newR = p.row + r + rowOffset;
+              var newC = p.col + c + colOffset;
+              if (newR < 0 || newR >= ROWS || newC < 0 || newC >= COLS) return false;
+              if (board[newR][newC]) return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      function mergePiece() {
+        for (var r = 0; r < currentPiece.shape.length; r++) {
+          for (var c = 0; c < currentPiece.shape[r].length; c++) {
+            if (currentPiece.shape[r][c]) {
+              board[currentPiece.row + r][currentPiece.col + c] = 1;
+            }
+          }
+        }
+      }
+
+      function clearLines() {
+        for (var r = ROWS - 1; r >= 0; r--) {
+          var full = true;
+          for (var c = 0; c < COLS; c++) {
+            if (!board[r][c]) { full = false; break; }
+          }
+          if (full) {
+            board.splice(r, 1);
+            var newRow = [];
+            for (var i = 0; i < COLS; i++) newRow.push(0);
+            board.unshift(newRow);
+            score += 10;
+            document.getElementById("tetrisScore").textContent = "SCORE: " + score;
+            r++;
+          }
+        }
+      }
+
+      function tick() {
+        if (canMove(currentPiece, 1, 0)) {
+          currentPiece.row++;
+        } else {
+          mergePiece();
+          clearLines();
+          newPiece();
+          if (!canMove(currentPiece, 0, 0)) {
+            alert("ゲームオーバー！ SCORE: " + score);
+            resetBoard();
+            score = 0;
+            document.getElementById("tetrisScore").textContent = "SCORE: 0";
+          }
+        }
+        drawBoard();
+      }
+
+      function moveLeft() { if (currentPiece && canMove(currentPiece, 0, -1)) { currentPiece.col--; drawBoard(); } }
+      function moveRight() { if (currentPiece && canMove(currentPiece, 0, 1)) { currentPiece.col++; drawBoard(); } }
+      function moveDown() { if (currentPiece) { tick(); } }
+      function rotate() {
+        if (!currentPiece) return;
+        var s = currentPiece.shape;
+        var rotated = [];
+        for (var c = 0; c < s[0].length; c++) {
+          rotated[c] = [];
+          for (var r = s.length - 1; r >= 0; r--) {
+            rotated[c].push(s[r][c]);
+          }
+        }
+        if (canMove(currentPiece, 0, 0, rotated)) {
+          currentPiece.shape = rotated;
+          drawBoard();
+        }
+      }
+
+      // モーダルの開閉処理
+      var openBtn = document.getElementById("openTetrisBtn");
+      var closeBtn = document.getElementById("closeTetrisBtn");
+      var modal = document.getElementById("tetrisModal");
+
+      if (openBtn && modal) {
+        openBtn.addEventListener("click", function() {
+          modal.style.display = "flex";
+          resetBoard();
+          score = 0;
+          document.getElementById("tetrisScore").textContent = "SCORE: 0";
+          newPiece();
+          drawBoard();
+          if (gameInterval) clearInterval(gameInterval);
+          gameInterval = setInterval(tick, 500);
+        });
+      }
+
+      if (closeBtn && modal) {
+        closeBtn.addEventListener("click", function() {
+          modal.style.display = "none";
+          if (gameInterval) clearInterval(gameInterval);
+        });
+      }
+
+      document.getElementById("btnLeft").addEventListener("click", moveLeft);
+      document.getElementById("btnRight").addEventListener("click", moveRight);
+      document.getElementById("btnDown").addEventListener("click", moveDown);
+      document.getElementById("btnRotate").addEventListener("click", rotate);
+
+      // 初期表示実行
+      renderNotices();
+      renderChat();
+      renderAttendance();
+      renderTasks();
     });
   </script>
 </body>
