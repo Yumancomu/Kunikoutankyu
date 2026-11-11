@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文化祭準備 ポータルサイト</title>
+  <title>クラス文化祭準備 ポータルサイト</title>
   <style>
     :root {
-      --primary-color: #4a90e2;
-      --secondary-color: #50e3c2;
-      --bg-color: #f4f7f6;
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --bg-color: #f4f6f7;
       --card-bg: #ffffff;
       --text-color: #333333;
-      --border-radius: 8px;
+      --border-radius: 6px;
     }
 
     * {
@@ -29,22 +29,45 @@
     }
 
     header {
-      background: linear-gradient(135deg, var(--primary-color), #357abd);
+      background-color: var(--primary-color);
       color: white;
+      padding: 1.5rem 1rem;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-content {
+      max-width: 1000px;
+      margin: 0 auto;
       text-align: center;
-      padding: 2rem 1rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .digital-clock {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: rgba(0, 0, 0, 0.25);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      color: #00ffcc;
     }
 
     header h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: #ecf0f1;
     }
 
     .container {
       max-width: 1000px;
-      margin: 0 auto;
+      margin: 20px auto 0;
       padding: 0 15px;
       display: grid;
       grid-template-columns: 1fr;
@@ -64,284 +87,9 @@
       background: var(--card-bg);
       border-radius: var(--border-radius);
       padding: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border: 1px solid #e1e8ed;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .card h2 {
-      font-size: 1.3rem;
-      color: var(--primary-color);
-      margin-bottom: 15px;
-      border-bottom: 2px solid var(--bg-color);
-      padding-bottom: 8px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    label {
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
-
-    input, select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    button {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    button:hover {
-      background-color: #357abd;
-    }
-
-    .list-container {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .item {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .item:last-child {
-      border-bottom: none;
-    }
-
-    .badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      color: white;
-      font-weight: bold;
-    }
-
-    .badge-出席 { background-color: #2ecc71; }
-    .badge-遅刻 { background-color: #f39c12; }
-    .badge-欠席 { background-color: #e74c3c; }
-
-    .badge-todo { background-color: #95a5a6; }
-    .badge-doing { background-color: #3498db; }
-    .badge-done { background-color: #2ecc71; }
-
-    .notice-item {
-      background-color: #f8f9fa;
-      border-left: 4px solid var(--primary-color);
-      padding: 10px 15px;
-      margin-bottom: 10px;
-      border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    }
-
-    .notice-date {
-      font-size: 0.8rem;
-      color: #777;
-    }
-
-    .status-btn {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      width: auto;
-      margin-left: 5px;
-    }
-  </style>
-</head>
-<body>
-
-  <header>
-    <h1>文化祭準備 ポータルサイト</h1>
-    <p>スムーズな準備で最高の文化祭にしよう！</p>
-  </header>
-
-  <div class="container">
-
-    <!-- お知らせボード -->
-    <div class="card full-width">
-      <h2>📢 全体連絡・お知らせ</h2>
-      <div id="noticeList">
-        <div class="notice-item">
-          <div class="notice-date">2026/11/10</div>
-          <strong>資材の保管場所について</strong>
-          <p>ダンボールと絵の具は第2美術室にまとめて置いてください。</p>
-        </div>
-        <div class="notice-item">
-          <div class="notice-date">2026/11/08</div>
-          <strong>シフト入力のお願い</strong>
-          <p>準備期間中の出欠確認を行います。各自シフトを入力してください。</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- シフト出欠入力フォーム -->
-    <div class="card">
-      <h2>📝 シフト出欠登録</h2>
-      <form id="attendanceForm">
-        <div>
-          <label for="studentName">氏名</label>
-          <input type="text" id="studentName" placeholder="山田 太郎" required>
-        </div>
-        <div>
-          <label for="studentClass">学年・クラス</label>
-          <input type="text" id="studentClass" placeholder="2年B組" required>
-        </div>
-        <div>
-          <label for="shiftDate">対象日時</label>
-          <select id="shiftDate" required>
-            <option value="">選択してください</option>
-            <option value="11/12 前半 (15:00-16:30)">11/12 前半 (15:00-16:30)</option>
-            <option value="11/12 後半 (16:30-18:00)">11/12 後半 (16:30-18:00)</option>
-            <option value="11/13 前半 (15:00-16:30)">11/13 前半 (15:00-16:30)</option>
-            <option value="11/13 後半 (16:30-18:00)">11/13 後半 (16:30-18:00)</option>
-          </select>
-        </div>
-        <div>
-          <label for="attendanceStatus">出欠状態</label>
-          <select id="attendanceStatus" required>
-            <option value="出席">出席</option>
-            <option value="遅刻">遅刻</option>
-            <option value="欠席">欠席</option>
-          </select>
-        </div>
-        <div>
-          <label for="attendanceNote">備考（理由など）</label>
-          <input type="text" id="attendanceNote" placeholder="部活のため30分遅刻">
-        </div>
-        <button type="submit">送信する</button>
-      </form>
-    </div>
-
-    <!-- シフト出欠一覧 -->
-    <div class="card">
-      <h2>👥 出欠状況一覧</h2>
-      <div class="list-container" id="attendanceList">
-        <!-- JSで動的に追加されます -->
-      </div>
-    </div>
-
-    <!-- タスク・進捗管理 -->
-    <div class="card full-width">
-      <h2>✅ 準備タスク・進捗</h2>
-      <form id="taskForm" style="flex-direction: row; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="taskInput" placeholder="新しいタスクを入力 (例: 外装の看板塗り)" required style="flex: 1;">
-        <button type="submit" style="width: auto; padding: 0 20px;">追加</button>
-      </form>
-      <div class="list-container" id="taskList">
-        <!-- JSで動的に追加されます -->
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    // 初期データのセットアップ
-    let attendanceData = [
-      { name: '佐藤 花子', class: '2年B組', shift: '11/12 前半 (15:00-16:30)', status: '出席', note: '' },
-      { name: '鈴木 健太', class: '2年B組', shift: '11/12 前半 (15:00-16:30)', status: '遅刻', note: '15:30到着予定' }
-    ];
-
-    let taskData = [
-      { id: 1, title: '装飾用の風船膨らまし', status: 'todo' },
-      { id: 2, title: '入口看板の制作', status: 'doing' },
-      { id: 3, title: '机・椅子の配置換え', status: 'done' }
-    ];
-
-    // 出欠一覧の描画
-    function renderAttendance() {
-      const list = document.getElementById('attendanceList');
-      if (attendanceData.length === 0) {
-        list.innerHTML = '<p style="color: #888; text-align: center;">出欠データはありません</p>';
-        return;
-      }
-      list.innerHTML = attendanceData.map(item => `
-        <div class="item">
-          <div>
-            <strong>${item.name}</strong> (${item.class})<br>
-            <small style="color: #666;">${item.shift}</small>
-            ${item.note ? `<br><small style="color: #888;">メモ: ${item.note}</small>` : ''}
-          </div>
-          <span class="badge badge-${item.status}">${item.status}</span>
-        </div>
-      `).join('');
-    }
-
-    // 出欠フォーム送信処理
-    document.getElementById('attendanceForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const newEntry = {
-        name: document.getElementById('studentName').value,
-        class: document.getElementById('studentClass').value,
-        shift: document.getElementById('shiftDate').value,
-        status: document.getElementById('attendanceStatus').value,
-        note: document.getElementById('attendanceNote').value
-      };
-      attendanceData.unshift(newEntry);
-      renderAttendance();
-      
-      // フォームリセット
-      document.getElementById('studentName').value = '';
-      document.getElementById('attendanceNote').value = '';
-      alert('出欠を登録しました！');
-    });
-
-    // タスク一覧の描画
-    function renderTasks() {
-      const list = document.getElementById('taskList');
-      const statusLabels = { todo: '未着手', doing: '進行中', done: '完了' };
-      
-      list.innerHTML = taskData.map(task => `
-        <div class="item">
-          <div>
-            <strong>${task.title}</strong>
-          </div>
-          <div>
-            <span class="badge badge-${task.status}">${statusLabels[task.status]}</span>
-            ${task.status !== 'done' ? `<button class="status-btn" onclick="updateTaskStatus(${task.id})">次へ進める</button>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // タスク追加処理
-    document.getElementById('taskForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const input = document.getElementById('taskInput');
-      taskData.push({
-        id: Date.now(),
-        title: input.value,
-        status: 'todo'
-      });
-      input.value = '';
-      renderTasks();
-    });
-
-    // タスクステータス更新
-    function updateTaskStatus(id) {
-      const task = taskData.find(t => t.id === id);
-      if (task) {
-        if (task.status === 'todo') task.status = 'doing';
-        else if (task.status === 'doing') task.status = 'done';
-        renderTasks();
-      }
-    }
-
-    // 初期化実行
-    renderAttendance();
-    renderTasks();
-  </script>
-</body>
-</html>
+      font-size: 1.2
