@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>クラス文化祭準備 ポータルサイト</title>
+  <title>1800文化祭ツール</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -315,6 +315,43 @@
     .tetris-controls button {
       padding: 8px;
       font-size: 0.8rem;
+
+      /* スマホ・iPad対応のレスポンシブ設定 */
+@media (max-width: 768px) {
+  /* スマホ・iPad（縦向き）の時は1列でスッキリ表示 */
+  .container {
+    grid-template-columns: 1fr !important;
+    padding: 0 10px;
+    margin-top: 10px;
+  }
+
+  .card full-width {
+    grid-column: span 1 !important;
+  }
+
+  /* 上部メニューバーの文字サイズと隙間を自動調整 */
+  .navbar {
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 8px;
+  }
+
+  .navbar a {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+
+  /* フォームのボタンや入力欄を押しやすく調整 */
+  input, select, textarea, button {
+    font-size: 16px !important; /* iPhone/iPadでの勝手な画面ズームを防止 */
+  }
+
+  /* ヘッダーの文字サイズを画面サイズに合わせる */
+  header h1 {
+    font-size: 1.1rem;
+  }
+}
+
     }
   </style>
 </head>
@@ -358,7 +395,7 @@
 
     <!-- クラスチャット & 進捗写真投稿 -->
     <div class="card full-width" id="chatSection">
-      <h2>クラスチャット & 進捗写真共有</h2>
+      <h2>クラスチャット</h2>
       <form id="chatForm" style="margin-bottom: 15px;">
         <div style="display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
           <input type="text" id="chatName" placeholder="名前" required style="width: 140px;">
@@ -378,6 +415,8 @@
     <!-- シフト出欠登録 -->
     <div class="card" id="attendanceSection">
       <h2>シフト出欠登録 (本日のシフト)</h2>
+
+
       <form id="attendanceForm">
         <div>
           <label for="studentName">氏名</label>
