@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    <!-- Supabaseの読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>1800文化祭ツール</title>
@@ -481,6 +483,12 @@
   </div>
 
   <script>
+      // Supabaseの初期化（さきほどコピーした値に書き換えてください）
+      var SUPABASE_URL = "cypeacjghijhfupwwzig";
+      var SUPABASE_KEY = "ap-southeast-1 / public key";
+      var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    
     document.addEventListener("DOMContentLoaded", function() {
       // 日付と時刻の補助関数
       function getTodayString() {
@@ -622,20 +630,36 @@
           var file = imageInput.files[0];
           if (file) {
             var reader = new FileReader();
-            reader.onload = function(event) {
-              chatData.unshift({
-                id: Date.now(),
-                name: nameInput.value,
-                message: messageInput.value,
-                image: event.target.result,
-                time: getTimeString()
-              });
-              renderChat();
-              messageInput.value = "";
-              imageInput.value = "";
-            };
-            reader.readAsDataURL(file);
-          } else {
+                var file = imageInput.files[0];
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = async function(event) {
+        // 画像があるときのSupabase送信
+        await supabaseClient.from('chats').insert([{
+          id: Date.now(),
+          name: nameInput.value,
+          message: messageInput.value,
+          image: event.target.result,
+          time: getTimeString()
+        }]);
+        
+        messageInput.value = "";
+        imageInput.value = "";
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // 画像がないときのSupabase送信
+      await supabaseClient.from('chats').insert([{
+        id: Date.now(),
+        name: nameInput.value,
+        message: messageInput.value,
+        image: "",
+        time: getTimeString()
+      }]);
+      
+      messageInput.value = "";
+    }
+ {
             chatData.unshift({
               id: Date.now(),
               name: nameInput.value,
