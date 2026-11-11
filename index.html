@@ -170,11 +170,31 @@
       border-left: 3px solid var(--primary-color);
       padding: 10px 12px;
       margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .notice-date {
       font-size: 0.75rem;
       color: #777777;
+    }
+
+    .chat-item {
+      background-color: #ffffff;
+      border: 1px solid #e1e8ed;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .chat-meta {
+      font-size: 0.75rem;
+      color: #777777;
+      margin-bottom: 2px;
     }
 
     .btn-group {
@@ -212,18 +232,29 @@
     <!-- クラス内連絡 -->
     <div class="card full-width">
       <h2>クラス内連絡事項</h2>
-      <div id="noticeList">
-        <div class="notice-item">
-          <div class="notice-date">2026/11/10</div>
-          <strong>役割分担と作業場所について</strong>
-          <p>内装作業は教室前方、小道具制作は廊下側で行います。作業後の清掃を徹底してください。</p>
+      <form id="noticeForm" style="margin-bottom: 15px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <input type="text" id="noticeTitle" placeholder="連絡タイトル (例: 作業場所の変更)" required style="flex: 1;">
         </div>
-        <div class="notice-item">
-          <div class="notice-date">2026/11/08</div>
-          <strong>出欠入力について</strong>
-          <p>放課後の準備シフトへの参加可否を以下のフォームより回答してください。</p>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="noticeDetail" placeholder="詳細を入力してください" required style="flex: 2;">
+          <button type="submit" style="width: auto; padding: 0 20px;">追加</button>
         </div>
-      </div>
+      </form>
+      <div class="list-container" id="noticeList"></div>
+    </div>
+
+    <!-- クラスチャット -->
+    <div class="card full-width">
+      <h2>クラスチャット</h2>
+      <form id="chatForm" style="margin-bottom: 15px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <input type="text" id="chatName" placeholder="名前" required style="width: 150px;">
+          <input type="text" id="chatMessage" placeholder="メッセージを入力 (例: 絵の具の予備はどこにありますか？)" required style="flex: 1;">
+          <button type="submit" style="width: auto; padding: 0 20px;">送信</button>
+        </div>
+      </form>
+      <div class="list-container" id="chatList"></div>
     </div>
 
     <!-- シフト出欠登録 -->
@@ -278,7 +309,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      // 本日の日付を取得 (YYYY-MM-DD形式)
+      // 本日の日付取得
       function getTodayString() {
         var now = new Date();
         var year = now.getFullYear();
@@ -287,6 +318,14 @@
         return year + "-" + month + "-" + day;
       }
       var today = getTodayString();
+
+      // 現在時刻取得 (時:分)
+      function getTimeString() {
+        var now = new Date();
+        var hours = String(now.getHours()).padStart(2, "0");
+        var minutes = String(now.getMinutes()).padStart(2, "0");
+        return hours + ":" + minutes;
+      }
 
       // デジタル時計
       function updateClock() {
@@ -302,13 +341,131 @@
       setInterval(updateClock, 1000);
       updateClock();
 
-      // 出欠データ管理 (昨日以前のデータは自動的に除外される仕組み)
+      // 1. 連絡事項データ管理
+      var noticeData = [
+        { id: 1, title: "役割分担と作業場所について", detail: "内装作業は教室前方、小道具制作は廊下側で行います。作業後の清掃を徹底してください。", date: "2026/11/10" },
+        { id: 2, title: "出欠入力について", detail: "放課後の準備シフトへの参加可否を以下のフォームより回答してください。", date: "2026/11/08" }
+      ];
+
+      function renderNotices() {
+        var list = document.getElementById("noticeList");
+        if (!list) return;
+
+        if (noticeData.length === 0) {
+          list.innerHTML = '<p style="color: #888888; text-align: center;">連絡事項はありません</p>';
+          return;
+        }
+
+        var html = "";
+        for (var i = 0; i < noticeData.length; i++) {
+          var item = noticeData[i];
+          html += '<div class="notice-item">' +
+                    '<div>' +
+                      '<div class="notice-date">' + item.date + '</div>' +
+                      '<strong>' + item.title + '</strong>' +
+                      '<p style="font-size: 0.9rem; margin-top: 4px;">' + item.detail + '</p>' +
+                    '</div>' +
+                    '<button class="action-btn delete-btn delete-notice-btn" type="button" data-id="' + item.id + '">削除</button>' +
+                  '</div>';
+        }
+        list.innerHTML = html;
+
+        var delNoticeButtons = list.querySelectorAll(".delete-notice-btn");
+        delNoticeButtons.forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var id = Number(this.getAttribute("data-id"));
+            noticeData = noticeData.filter(function(item) {
+              return item.id !== id;
+            });
+            renderNotices();
+          });
+        });
+      }
+
+      var noticeForm = document.getElementById("noticeForm");
+      if (noticeForm) {
+        noticeForm.addEventListener("submit", function(e) {
+          e.preventDefault();
+          var titleInput = document.getElementById("noticeTitle");
+          var detailInput = document.getElementById("noticeDetail");
+
+          noticeData.unshift({
+            id: Date.now(),
+            title: titleInput.value,
+            detail: detailInput.value,
+            date: today.replace(/-/g, "/")
+          });
+
+          renderNotices();
+          titleInput.value = "";
+          detailInput.value = "";
+        });
+      }
+
+      // 2. チャット機能データ管理
+      var chatData = [
+        { id: 1, name: "広報担当", message: "掲示用のポスターが完成しました！教室前方に貼っておきます。", time: "15:20" }
+      ];
+
+      function renderChat() {
+        var list = document.getElementById("chatList");
+        if (!list) return;
+
+        if (chatData.length === 0) {
+          list.innerHTML = '<p style="color: #888888; text-align: center;">メッセージはありません</p>';
+          return;
+        }
+
+        var html = "";
+        for (var i = 0; i < chatData.length; i++) {
+          var item = chatData[i];
+          html += '<div class="chat-item">' +
+                    '<div>' +
+                      '<div class="chat-meta"><strong>' + item.name + '</strong> (' + item.time + ')</div>' +
+                      '<div>' + item.message + '</div>' +
+                    '</div>' +
+                    '<button class="action-btn delete-btn delete-chat-btn" type="button" data-id="' + item.id + '">削除</button>' +
+                  '</div>';
+        }
+        list.innerHTML = html;
+
+        var delChatButtons = list.querySelectorAll(".delete-chat-btn");
+        delChatButtons.forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var id = Number(this.getAttribute("data-id"));
+            chatData = chatData.filter(function(item) {
+              return item.id !== id;
+            });
+            renderChat();
+          });
+        });
+      }
+
+      var chatForm = document.getElementById("chatForm");
+      if (chatForm) {
+        chatForm.addEventListener("submit", function(e) {
+          e.preventDefault();
+          var nameInput = document.getElementById("chatName");
+          var messageInput = document.getElementById("chatMessage");
+
+          chatData.unshift({
+            id: Date.now(),
+            name: nameInput.value,
+            message: messageInput.value,
+            time: getTimeString()
+          });
+
+          renderChat();
+          messageInput.value = "";
+        });
+      }
+
+      // 3. 出欠データ管理
       var attendanceData = [
         { id: 1, name: "佐藤 花子", shift: "前半 (15:00-16:30)", date: today, status: "出席", note: "" },
         { id: 2, name: "鈴木 健太", shift: "前半 (15:00-16:30)", date: today, status: "遅刻", note: "15:30到着予定" }
       ];
 
-      // 起動時に今日以外の古いデータを自動削除
       attendanceData = attendanceData.filter(function(item) {
         return item.date === today;
       });
@@ -340,9 +497,8 @@
         }
         list.innerHTML = html;
 
-        // 出欠削除ボタンのイベント登録
-        var delButtons = list.querySelectorAll(".delete-att-btn");
-        delButtons.forEach(function(btn) {
+        var delAttButtons = list.querySelectorAll(".delete-att-btn");
+        delAttButtons.forEach(function(btn) {
           btn.addEventListener("click", function() {
             var id = Number(this.getAttribute("data-id"));
             attendanceData = attendanceData.filter(function(item) {
@@ -377,7 +533,7 @@
         });
       }
 
-      // タスク管理
+      // 4. タスク管理
       var taskData = [
         { id: 1, title: "看板デザイン作成", status: "done" },
         { id: 2, title: "外装用ダンボールの確保", status: "doing" },
@@ -411,7 +567,6 @@
         }
         list.innerHTML = html;
 
-        // タスクを進めるボタン
         var advButtons = list.querySelectorAll(".advance-btn");
         advButtons.forEach(function(btn) {
           btn.addEventListener("click", function() {
@@ -427,7 +582,6 @@
           });
         });
 
-        // タスク削除ボタン
         var delTaskButtons = list.querySelectorAll(".delete-task-btn");
         delTaskButtons.forEach(function(btn) {
           btn.addEventListener("click", function() {
@@ -457,6 +611,9 @@
         });
       }
 
+      // 初期表示実行
+      renderNotices();
+      renderChat();
       renderAttendance();
       renderTasks();
     });
