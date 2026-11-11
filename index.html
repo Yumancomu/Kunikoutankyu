@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>1800文化祭ツール</title>
-  <!-- Supabaseの読み込み -->
+  <!-- Supabaseの読み込み (v2) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -381,12 +381,12 @@
   </div>
 
   <script>
-    // Supabaseの初期化（※ご自身の正しいURLとanonキーに書き換えてください）
+    // Supabaseの初期化（設定済み）
     var SUPABASE_URL = "https://cypeacjghijhfupwwzig.supabase.co";
-    var SUPABASE_KEY = "ここにあなたのanonキー";
+    var SUPABASE_KEY = "sb_publishable_9X3D2uUwJEgbl5eduJh6FA_GDxXvAgb";
     var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // デジタル時計（確実に動くように独立して常時実行）
+    // デジタル時計（独立して常時実行）
     function updateClock() {
       var clockElement = document.getElementById("clock");
       if (clockElement) {
@@ -400,8 +400,9 @@
     setInterval(updateClock, 1000);
     updateClock();
 
+    document.getElementById("clock").style.display = "block";
+
     document.addEventListener("DOMContentLoaded", function() {
-      // 日付の補助関数
       function getTodayString() {
         var now = new Date();
         var year = now.getFullYear();
@@ -730,7 +731,6 @@
 
       var taskForm = document.getElementById("taskForm");
       if (taskForm) {
-        taskForm.addEventListener("script", ...); // 修正済み
         taskForm.addEventListener("submit", async function(e) {
           e.preventDefault();
           var input = document.getElementById("taskInput");
